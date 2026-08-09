@@ -1,0 +1,15 @@
+{
+  "total_images": 33126,
+  "benign_images": 32542,
+  "melanoma_images": 584,
+  "melanoma_prevalence": 0.01762965646320111,
+  "negative_positive_ratio": 55.72260273972603,
+  "unique_known_patients": 2056,
+  "missing_patient_ids": 0,
+  "missing_images": 0,
+  "metadata_missing_counts": {
+    "sex": 65,
+    "age_approx": 68,
+    "anatom_site_general_challenge": 527
+  }
+}

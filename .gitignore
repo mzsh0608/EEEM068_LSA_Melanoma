@@ -52,3 +52,13 @@ outputs/checkpoints/*.ckpt
 
 .DS_Store
 Thumbs.db
+
+# ==============================
+# Original SIIM-ISIC input metadata
+# ==============================
+data/train.csv
+data/test.csv
+
+# Raw image folders
+data/train_images/
+data/test_images/
