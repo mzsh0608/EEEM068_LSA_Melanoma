@@ -56,7 +56,59 @@ experiments while keeping training computationally feasible.
 
 ## 3. Logistic Regression
 
-TODO
+
+### Logistic Regression
+
+Logistic Regression is a linear probabilistic classifier.
+It models the log-odds of the positive class as a weighted
+linear combination of input features and maps the result
+through the logistic sigmoid function.
+
+In H0/H1, the input was a 4,096-dimensional vector created
+by converting each lesion image to grayscale, resizing it
+to 64x64, scaling pixel values to [0,1], and flattening it.
+
+The main limitation is that flattening removes explicit
+spatial structure. Logistic Regression does not learn
+hierarchical image features in the way a CNN does.
+
+### Class weighting
+
+H1 used class_weight="balanced".
+
+This gives minority-class observations greater influence
+during model fitting. It changes the optimisation objective;
+it is not the same as simply changing the classification
+threshold afterward.
+
+### Decision threshold
+
+The predicted probability is converted into a class using
+a threshold.
+
+Lowering the threshold generally makes the classifier more
+willing to predict melanoma, which can increase sensitivity
+while also increasing false positives and reducing
+specificity.
+
+### ROC-AUC
+
+ROC-AUC measures how well the model ranks positive cases
+above negative cases across thresholds.
+
+It is threshold-independent.
+
+### Precision-recall / Average Precision
+
+Precision-recall analysis is particularly useful for this
+dataset because melanoma represents only about 1.76% of
+observations.
+
+### Why use the same Fold 0 for every model?
+
+A common validation set means performance differences can
+be attributed more meaningfully to model/method changes
+rather than different validation samples.
 
 ---
 
