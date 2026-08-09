@@ -62,6 +62,8 @@ def create_patient_folds(
         random_state=seed
     )
 
+    fold_column_index = result.columns.get_loc("fold")
+
     for fold, (_, val_idx) in enumerate(
         splitter.split(
             X=result,
@@ -69,7 +71,7 @@ def create_patient_folds(
             groups=result["_group_id"]
         )
     ):
-        result.loc[val_idx, "fold"] = fold
+        result.iloc[val_idx, fold_column_index] = fold
 
     if (result["fold"] < 0).any():
         raise RuntimeError(
