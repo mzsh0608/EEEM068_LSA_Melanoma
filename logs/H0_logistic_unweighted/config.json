@@ -1,0 +1,19 @@
+{
+  "experiment_id": "H0",
+  "model": "LogisticRegression",
+  "class_weight": null,
+  "solver": "lbfgs",
+  "penalty": "l2",
+  "C": 1.0,
+  "max_iter": 1000,
+  "random_state": 42,
+  "training_subset_size": 5000,
+  "training_subset_seed": 42,
+  "validation_fold": 0,
+  "feature_representation": "64x64 grayscale flattened pixels",
+  "feature_dimension": 4096,
+  "pixel_scaling": "divide_by_255",
+  "threshold": 0.5,
+  "fit_seconds": 1.0575631999963662,
+  "n_iter": 82
+}

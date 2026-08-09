@@ -1,0 +1,32 @@
+experiment_id: H0
+experiment_name: logistic_unweighted
+
+role: historical_lower_bound
+
+seed: 42
+validation_fold: 0
+
+dataset:
+  training_subset_size: 5000
+  subset_stratified: true
+  subset_seed: 42
+
+features:
+  colour_mode: grayscale
+  image_width: 64
+  image_height: 64
+  feature_dimension: 4096
+  pixel_scaling: divide_by_255
+  resize_resampling: bilinear
+
+model:
+  architecture: LogisticRegression
+  solver: lbfgs
+  penalty: l2
+  C: 1.0
+  class_weight: null
+  max_iter: 1000
+  random_state: 42
+
+evaluation:
+  primary_threshold: 0.5

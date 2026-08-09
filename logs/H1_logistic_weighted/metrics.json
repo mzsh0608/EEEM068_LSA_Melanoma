@@ -1,0 +1,19 @@
+{
+  "threshold": 0.5,
+  "roc_auc": 0.6243924534247115,
+  "pr_auc_average_precision": 0.036315504860682926,
+  "accuracy": 0.9372264976610835,
+  "balanced_accuracy": 0.5483792193469613,
+  "precision": 0.05105105105105105,
+  "sensitivity": 0.1452991452991453,
+  "recall": 0.1452991452991453,
+  "specificity": 0.9514592933947773,
+  "f1": 0.07555555555555556,
+  "tn": 6194,
+  "fp": 316,
+  "fn": 100,
+  "tp": 17,
+  "n_samples": 6627,
+  "n_positive": 117,
+  "n_negative": 6510
+}
