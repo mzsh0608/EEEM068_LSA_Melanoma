@@ -1,0 +1,54 @@
+# ==============================
+# Python
+# ==============================
+
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# ==============================
+# Virtual environment
+# ==============================
+
+.venv/
+venv/
+
+# ==============================
+# Jupyter
+# ==============================
+
+.ipynb_checkpoints/
+
+# ==============================
+# VS Code / IDE
+# ==============================
+
+.vscode/
+.idea/
+
+# ==============================
+# Raw dataset
+# ==============================
+
+data/train_images/
+data/test_images/
+
+data/**/*.jpg
+data/**/*.jpeg
+data/**/*.png
+data/**/*.dcm
+
+# ==============================
+# Model checkpoints
+# ==============================
+
+outputs/checkpoints/*.pth
+outputs/checkpoints/*.pt
+outputs/checkpoints/*.ckpt
+
+# ==============================
+# Operating system
+# ==============================
+
+.DS_Store
+Thumbs.db
