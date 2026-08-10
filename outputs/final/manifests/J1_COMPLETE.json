@@ -1,0 +1,134 @@
+{
+  "phase": "J1",
+  "status": "COMPLETE",
+  "completion_timestamp": "2026-08-10T12:32:58+02:00",
+  "verified_git_head": "6ae4c52938e7907d8d0b362ed58ed44b3df6b73b",
+  "components": {
+    "J1A_authoritative_evidence_audit": "COMPLETE",
+    "J1B_evidence_table_consolidation": "COMPLETE",
+    "J1C_final_verification_gate": "COMPLETE"
+  },
+  "final_table_paths": [
+    "outputs/final/tables/dataset_summary.csv",
+    "outputs/final/tables/main_model_results.csv",
+    "outputs/final/tables/deep_model_protocol.csv",
+    "outputs/final/tables/hyperparameter_selection.csv",
+    "outputs/final/tables/training_summary.csv",
+    "outputs/final/tables/B0_M1_architecture_comparison.csv",
+    "outputs/final/tables/M1_M2_metadata_ablation.csv",
+    "outputs/final/tables/threshold_summary.csv",
+    "outputs/final/tables/bootstrap_summary.csv",
+    "outputs/final/tables/subgroup_summary.csv",
+    "outputs/final/tables/failure_summary.csv",
+    "outputs/final/tables/integrity_summary.csv"
+  ],
+  "manifest_paths": [
+    "outputs/final/manifests/authoritative_sources.json",
+    "outputs/final/manifests/comparison_boundaries.json",
+    "outputs/final/manifests/J1A_evidence_audit.json",
+    "outputs/final/manifests/J1B_tables_manifest.json",
+    "outputs/final/manifests/dataset_summary_sources.json",
+    "outputs/final/manifests/hyperparameter_strategy.json",
+    "outputs/final/manifests/bootstrap_interpretation.json",
+    "outputs/final/manifests/J1_COMPLETE.json"
+  ],
+  "test_status": {
+    "status": "PASS",
+    "command": ".\\.venv\\Scripts\\python.exe -m pytest -v",
+    "collected": 102,
+    "passed": 102,
+    "failed": 0,
+    "warnings": 0
+  },
+  "frozen_hash_verification": {
+    "status": "PASS",
+    "hash_algorithm": "SHA-256",
+    "verified_artifact_count": 9,
+    "artifacts": [
+      {
+        "path": "data/train_folds.csv",
+        "sha256": "be0310b7786aa02bff12cafcb3cb5014b3da96f00eb1d497781992c1b086bedb"
+      },
+      {
+        "path": "outputs/predictions/H0_logistic_unweighted.csv",
+        "sha256": "421739bddeef2fb99185fad18a950d422b8a1c112dc55cfd6eafa47c7f4a400c"
+      },
+      {
+        "path": "outputs/predictions/H1_logistic_weighted.csv",
+        "sha256": "d7c8d2d158e7399f4b4fd9ef935cb12f58798e090a46f7a8cb833b11a0c4512f"
+      },
+      {
+        "path": "outputs/predictions/B0_resnet18.csv",
+        "sha256": "0913d840fed97ab5692aba060fc6a9c6d8cffb808c46aa961662f80e3294e60a"
+      },
+      {
+        "path": "outputs/predictions/M1_convnext_image.csv",
+        "sha256": "a47eea1929b9775e71342e511be283c14e26c006d49da51c9d65efac2e8bf82b"
+      },
+      {
+        "path": "outputs/predictions/M2_convnext_metadata.csv",
+        "sha256": "2755910cacd128b22c97004c159991dd1ead1fa6a5b592000c797eb078f2853a"
+      },
+      {
+        "path": "outputs/checkpoints/B0_resnet18_best.pt",
+        "sha256": "acfa9a957812cf2919b4f6d45efe58da02db9f82b70bf16ca5950a377e6cedb2"
+      },
+      {
+        "path": "outputs/checkpoints/M1_convnext_image_best.pt",
+        "sha256": "427069959e8912cbf81470995c6abbd51d08b81b9c6fa40fa82e6551e7920823"
+      },
+      {
+        "path": "outputs/checkpoints/M2_convnext_metadata_best.pt",
+        "sha256": "1de41b5cb085ee6c2d29c3dbf23b56afeec8043d252dbfeea149a9c0e18ec312"
+      }
+    ]
+  },
+  "metric_consistency_status": {
+    "status": "PASS",
+    "main_model_metrics": "5/5 models matched authoritative metrics within floating-point tolerance",
+    "comparison_deltas": "24/24 metric deltas matched exact right-minus-left arithmetic",
+    "bootstrap_rows": "3/3 matched the frozen bootstrap summary",
+    "primary_threshold_rows": "2/2 matched authoritative threshold-0.5 metrics",
+    "dataset_and_duplicate_counts": "PASS",
+    "training_timing_and_parameter_rows": "3/3 matched frozen audit evidence",
+    "final_table_hashes": "12/12 matched J1B_tables_manifest.json"
+  },
+  "hyperparameter_evidence_status": {
+    "status": "PASS",
+    "systematic_grid_search": false,
+    "systematic_random_search": false,
+    "bayesian_tuning": false,
+    "shared_deep_settings_documented": true,
+    "early_stopping_role": "checkpoint and effective training-duration selection",
+    "pos_weight_role": "derived from training class counts",
+    "primary_threshold_role": "predeclared common threshold 0.5",
+    "threshold_grid_role": "post-hoc behavioural analysis only, not optimization",
+    "metadata_embedding_and_dropout_role": "predeclared M2 architecture settings"
+  },
+  "terminology_status": {
+    "status": "PASS",
+    "precision_recall_term": "Average Precision (AP)",
+    "validation_term": "fixed patient-aware validation fold"
+  },
+  "comparison_boundary_status": {
+    "status": "PASS",
+    "H0_to_H1": "Logistic Regression weighting comparison",
+    "H0_H1_to_B0": "historical system-level progression",
+    "B0_to_M1": "matched external-protocol architecture-family comparison",
+    "M1_to_M2": "metadata-fusion system ablation",
+    "individual_metadata_causality_claim_supported": false
+  },
+  "assessment_compliance_path": "report/assessment_compliance.md",
+  "execution_constraints": {
+    "model_training_performed": false,
+    "fit_command_used": false,
+    "publication_figures_generated": false,
+    "results_notebook_created": false,
+    "final_report_prose_written": false,
+    "submission_packaged": false,
+    "collaborators_invited": false
+  },
+  "J1_complete": true,
+  "J2_safe_to_begin": true,
+  "handoff_path": "outputs/final/J1_HANDOFF.md"
+}
