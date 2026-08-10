@@ -1,11 +1,18 @@
 """Reusable PyTorch training engine for fixed-fold experiments."""
 
 import argparse
+import subprocess
 import time
+from datetime import datetime, timezone
 from pathlib import Path
 
+import matplotlib
 import pandas as pd
 import torch
+from sklearn.metrics import precision_recall_curve, roc_curve
+
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
 
 from src.dataset import (
     MelanomaDataset,
@@ -32,6 +39,27 @@ from src.utils import (
 
 def _amp_active(amp_enabled, device):
     return bool(amp_enabled and device.type == "cuda")
+
+
+def _utc_now():
+    return datetime.now(timezone.utc).isoformat()
+
+
+def _resolve_output(project_root, value):
+    path = Path(value)
+    return path if path.is_absolute() else Path(project_root) / path
+
+
+def _git_head(project_root):
+    try:
+        return subprocess.check_output(
+            ["git", "rev-parse", "HEAD"],
+            cwd=project_root,
+            text=True,
+            stderr=subprocess.DEVNULL,
+        ).strip()
+    except (OSError, subprocess.CalledProcessError):
+        return None
 
 
 def _check_binary_output(raw_logits, batch_size):
@@ -156,6 +184,215 @@ def validate_one_epoch(
     return metrics, predictions
 
 
+def build_resolved_config(config, experiment):
+    """Combine the locked YAML with values resolved from the real run."""
+    train_frame = experiment["train_df"]
+    val_frame = experiment["val_df"]
+    train_targets = train_frame["target"]
+    val_targets = val_frame["target"]
+    training_config = config["training"]
+    early_config = training_config["early_stopping"]
+    device = experiment["device"]
+
+    patient_overlap = None
+    if "patient_id" in train_frame and "patient_id" in val_frame:
+        train_patients = set(train_frame["patient_id"].dropna().astype(str))
+        val_patients = set(val_frame["patient_id"].dropna().astype(str))
+        patient_overlap = len(train_patients & val_patients)
+
+    resolved = {
+        "experiment_id": config["experiment_id"],
+        "experiment_name": config["experiment_name"],
+        "architecture": config["model"]["architecture"],
+        "weights": config["model"]["weights"],
+        "fine_tune_all": bool(config["model"]["fine_tune_all"]),
+        "seed": int(config["seed"]),
+        "validation_fold": int(config["validation_fold"]),
+        "train_samples": int(len(train_targets)),
+        "validation_samples": int(len(val_targets)),
+        "train_negative": int((train_targets == 0).sum()),
+        "train_positive": int((train_targets == 1).sum()),
+        "validation_negative": int((val_targets == 0).sum()),
+        "validation_positive": int((val_targets == 1).sum()),
+        "patient_overlap": patient_overlap,
+        "pos_weight": experiment["loss_info"]["pos_weight"],
+        "image_size": int(config["data"]["image_size"]),
+        "batch_size": int(config["data"]["batch_size"]),
+        "num_workers": int(experiment["train_loader"].num_workers),
+        "persistent_workers": bool(
+            experiment["train_loader"].persistent_workers
+        ),
+        "optimizer": training_config["optimizer"],
+        "learning_rate": float(training_config["learning_rate"]),
+        "weight_decay": float(training_config["weight_decay"]),
+        "loss": training_config["loss"],
+        "amp_requested": bool(training_config["amp"]),
+        "amp_active": _amp_active(training_config["amp"], device),
+        "max_epochs": int(training_config["epochs"]),
+        "early_stopping_enabled": bool(early_config["enabled"]),
+        "early_stopping_patience": int(early_config["patience"]),
+        "threshold": float(config["evaluation"]["threshold"]),
+        "checkpoint_metric": config["evaluation"]["checkpoint_metric"],
+        "checkpoint_mode": config["evaluation"]["checkpoint_mode"],
+        "preprocessing": {
+            "color_mode": "RGB",
+            "resize": [
+                int(config["data"]["image_size"]),
+                int(config["data"]["image_size"]),
+            ],
+            "resize_interpolation": config["transforms"][
+                "resize_interpolation"
+            ],
+            "normalization_mean": config["transforms"][
+                "normalization_mean"
+            ],
+            "normalization_std": config["transforms"][
+                "normalization_std"
+            ],
+            "validation_augmentation": None,
+        },
+        "training_augmentation": {
+            "horizontal_flip_probability": config["transforms"][
+                "horizontal_flip_probability"
+            ],
+            "vertical_flip_probability": config["transforms"][
+                "vertical_flip_probability"
+            ],
+            "rotation_degrees": config["transforms"][
+                "rotation_degrees"
+            ],
+            "brightness": config["transforms"]["brightness"],
+            "contrast": config["transforms"]["contrast"],
+        },
+    }
+    return {"configured": config, "resolved": resolved}
+
+
+def plot_training_history(history, output_path, best_epoch):
+    """Save loss and validation ranking curves for a completed run."""
+    figure, axes = plt.subplots(1, 2, figsize=(11, 4.5))
+    axes[0].plot(history["epoch"], history["train_loss"], label="Train")
+    axes[0].plot(history["epoch"], history["val_loss"], label="Validation")
+    axes[0].set(title="Loss", xlabel="Epoch", ylabel="Weighted BCE")
+    axes[0].legend()
+
+    axes[1].plot(
+        history["epoch"],
+        history["val_roc_auc"],
+        label="ROC-AUC",
+    )
+    axes[1].plot(
+        history["epoch"],
+        history["val_pr_auc"],
+        label="Average Precision",
+    )
+    axes[1].set(title="Validation ranking metrics", xlabel="Epoch")
+    axes[1].legend()
+
+    for axis in axes:
+        axis.axvline(best_epoch, color="black", linestyle="--", alpha=0.5)
+        axis.grid(alpha=0.25)
+
+    figure.tight_layout()
+    figure.savefig(ensure_parent(output_path), dpi=160)
+    plt.close(figure)
+
+
+def plot_confusion_matrix(metrics, output_path):
+    """Save the best-checkpoint threshold-0.5 confusion matrix."""
+    matrix = [
+        [metrics["tn"], metrics["fp"]],
+        [metrics["fn"], metrics["tp"]],
+    ]
+    figure, axis = plt.subplots(figsize=(5.5, 4.8))
+    image = axis.imshow(matrix, cmap="Blues")
+    for row_index, row in enumerate(matrix):
+        for column_index, value in enumerate(row):
+            axis.text(
+                column_index,
+                row_index,
+                f"{value:,}",
+                ha="center",
+                va="center",
+                color=("white" if value > max(map(max, matrix)) / 2 else "black"),
+            )
+    axis.set(
+        xticks=[0, 1],
+        yticks=[0, 1],
+        xticklabels=["Benign", "Melanoma"],
+        yticklabels=["Benign", "Melanoma"],
+        xlabel="Predicted label",
+        ylabel="True label",
+        title=f"B0 confusion matrix at threshold {metrics['threshold']:.1f}",
+    )
+    figure.colorbar(image, ax=axis, fraction=0.046, pad=0.04)
+    figure.tight_layout()
+    figure.savefig(ensure_parent(output_path), dpi=160)
+    plt.close(figure)
+
+
+def plot_roc_pr_comparison(prediction_files, output_path):
+    """Save ROC and precision-recall curves from authoritative CSVs."""
+    figure, axes = plt.subplots(1, 2, figsize=(11, 4.8))
+    prevalence = None
+
+    for label, prediction_path in prediction_files:
+        frame = pd.read_csv(prediction_path)
+        metrics = calculate_binary_metrics(
+            frame["target"],
+            frame["probability"],
+            threshold=0.5,
+        )
+        false_positive_rate, true_positive_rate, _ = roc_curve(
+            frame["target"], frame["probability"]
+        )
+        precision, recall, _ = precision_recall_curve(
+            frame["target"], frame["probability"]
+        )
+        axes[0].plot(
+            false_positive_rate,
+            true_positive_rate,
+            label=f"{label} (AUC={metrics['roc_auc']:.3f})",
+        )
+        axes[1].plot(
+            recall,
+            precision,
+            label=(
+                f"{label} "
+                f"(AP={metrics['pr_auc_average_precision']:.3f})"
+            ),
+        )
+        prevalence = float(frame["target"].mean())
+
+    axes[0].plot([0, 1], [0, 1], color="black", linestyle="--", alpha=0.5)
+    axes[0].set(
+        title="ROC curves",
+        xlabel="False positive rate",
+        ylabel="True positive rate",
+    )
+    if prevalence is not None:
+        axes[1].axhline(
+            prevalence,
+            color="black",
+            linestyle="--",
+            alpha=0.5,
+            label=f"Prevalence ({prevalence:.3f})",
+        )
+    axes[1].set(
+        title="Precision-recall curves",
+        xlabel="Recall",
+        ylabel="Precision",
+    )
+    for axis in axes:
+        axis.set_xlim(0, 1)
+        axis.set_ylim(0, 1)
+        axis.grid(alpha=0.25)
+        axis.legend()
+    figure.tight_layout()
+    figure.savefig(ensure_parent(output_path), dpi=160)
+    plt.close(figure)
+
+
 def fit_model(
     model,
     train_loader,
@@ -164,8 +401,12 @@ def fit_model(
     optimizer,
     device,
     config,
+    run_metadata=None,
 ):
     """Fit a configured model with checkpointing and early stopping."""
+    run_metadata = dict(run_metadata or {})
+    fit_started_at = _utc_now()
+    fit_started = time.perf_counter()
     training_config = config["training"]
     evaluation_config = config["evaluation"]
     output_config = config["outputs"]
@@ -187,22 +428,60 @@ def fit_model(
         raise ValueError("Early-stopping patience must be at least one.")
 
     project_root = Path(__file__).resolve().parents[1]
-
-    def resolve_output(value):
-        path = Path(value)
-        return path if path.is_absolute() else project_root / path
-
-    checkpoint_path = resolve_output(output_config["checkpoint"])
-    history_path = resolve_output(output_config["training_history"])
-    log_path = resolve_output(output_config["training_log"])
-    predictions_path = resolve_output(output_config["predictions"])
-    metrics_path = resolve_output(output_config["metrics"])
-    environment_path = resolve_output(output_config["environment"])
+    checkpoint_path = _resolve_output(
+        project_root, output_config["checkpoint"]
+    )
+    history_path = _resolve_output(
+        project_root, output_config["training_history"]
+    )
+    log_path = _resolve_output(
+        project_root, output_config["training_log"]
+    )
+    predictions_path = _resolve_output(
+        project_root, output_config["predictions"]
+    )
+    metrics_path = _resolve_output(project_root, output_config["metrics"])
+    environment_path = _resolve_output(
+        project_root, output_config["environment"]
+    )
     best_metric = float("-inf") if checkpoint_mode == "max" else float("inf")
     best_epoch = None
     epochs_without_improvement = 0
+    early_stopping_triggered = False
     history = []
-    ensure_parent(log_path).write_text("", encoding="utf-8")
+    log_lines = [
+        f"start_timestamp={fit_started_at}",
+        f"git_commit={run_metadata.get('git_commit')}",
+        f"experiment_id={run_metadata.get('experiment_id')}",
+        f"device={device}",
+        f"gpu_name={run_metadata.get('gpu_name')}",
+        (
+            "data_counts="
+            f"train:{run_metadata.get('train_samples')} "
+            f"validation:{run_metadata.get('validation_samples')} "
+            f"train_negative:{run_metadata.get('train_negative')} "
+            f"train_positive:{run_metadata.get('train_positive')} "
+            f"validation_negative:{run_metadata.get('validation_negative')} "
+            f"validation_positive:{run_metadata.get('validation_positive')}"
+        ),
+        f"pos_weight={run_metadata.get('pos_weight')}",
+        (
+            "configuration="
+            f"architecture:{run_metadata.get('architecture')} "
+            f"weights:{run_metadata.get('weights')} "
+            f"batch_size:{run_metadata.get('batch_size')} "
+            f"num_workers:{run_metadata.get('num_workers')} "
+            f"optimizer:{run_metadata.get('optimizer')} "
+            f"learning_rate:{run_metadata.get('learning_rate')} "
+            f"weight_decay:{run_metadata.get('weight_decay')} "
+            f"amp_active:{run_metadata.get('amp_active')} "
+            f"max_epochs:{max_epochs} patience:{patience}"
+        ),
+    ]
+    ensure_parent(log_path).write_text(
+        "\n".join(log_lines) + "\n",
+        encoding="utf-8",
+    )
 
     for epoch in range(1, max_epochs + 1):
         started = time.perf_counter()
@@ -283,7 +562,18 @@ def fit_model(
                 f"seconds={seconds:.2f}\n"
             )
 
+        print(
+            f"Epoch {epoch}/{max_epochs}: "
+            f"train_loss={train_loss:.6f} "
+            f"val_loss={val_metrics['loss']:.6f} "
+            f"val_roc_auc={val_metrics['roc_auc']:.6f} "
+            f"val_ap={val_metrics['pr_auc_average_precision']:.6f} "
+            f"seconds={seconds:.1f}",
+            flush=True,
+        )
+
         if early_enabled and epochs_without_improvement >= patience:
+            early_stopping_triggered = True
             break
 
     if best_epoch is None:
@@ -302,12 +592,42 @@ def fit_model(
         device,
         threshold=threshold,
     )
+    total_seconds = time.perf_counter() - fit_started
+    final_metrics.update({
+        "best_epoch": int(best_epoch),
+        "best_validation_roc_auc": float(best_metric),
+        "checkpoint_metric": checkpoint_metric,
+        "checkpoint_mode": checkpoint_mode,
+        "configured_max_epochs": max_epochs,
+        "actual_epochs": len(history),
+        "early_stopping_enabled": early_enabled,
+        "early_stopping_patience": patience,
+        "early_stopping_triggered": early_stopping_triggered,
+        "total_seconds": total_seconds,
+    })
     final_predictions.to_csv(
         ensure_parent(predictions_path),
         index=False,
     )
     save_metrics_json(final_metrics, metrics_path)
-    save_json(capture_environment(), environment_path)
+    environment = capture_environment()
+    environment.update({
+        "git_commit": run_metadata.get("git_commit"),
+        "experiment_id": run_metadata.get("experiment_id"),
+    })
+    save_json(environment, environment_path)
+
+    with ensure_parent(log_path).open("a", encoding="utf-8") as handle:
+        handle.write(
+            f"best_epoch={best_epoch} best_metric={best_metric:.8f}\n"
+            f"early_stopping_triggered={early_stopping_triggered}\n"
+            f"actual_epochs={len(history)} total_seconds={total_seconds:.2f}\n"
+            f"end_timestamp={_utc_now()}\n"
+            "artifacts="
+            f"checkpoint:{checkpoint_path} predictions:{predictions_path} "
+            f"metrics:{metrics_path} history:{history_path}\n"
+            "warnings=none\n"
+        )
 
     return {
         "model": model,
@@ -316,6 +636,8 @@ def fit_model(
         "best_metric": best_metric,
         "metrics": final_metrics,
         "predictions": final_predictions,
+        "early_stopping_triggered": early_stopping_triggered,
+        "total_seconds": total_seconds,
     }
 
 
@@ -426,6 +748,89 @@ def build_experiment(
     }
 
 
+def run_full_experiment(experiment, config, project_root):
+    """Execute and persist one authoritative configured experiment."""
+    project_root = Path(project_root)
+    output_config = config["outputs"]
+    resolved_config = build_resolved_config(config, experiment)
+    run_metadata = dict(resolved_config["resolved"])
+    run_metadata["git_commit"] = _git_head(project_root)
+    run_metadata["gpu_name"] = (
+        torch.cuda.get_device_name(0)
+        if experiment["device"].type == "cuda"
+        else None
+    )
+
+    experiment_directory = _resolve_output(
+        project_root, output_config["experiment_directory"]
+    )
+    config_path = experiment_directory / "config.json"
+    save_json(resolved_config, config_path)
+
+    result = fit_model(
+        experiment["model"],
+        experiment["train_loader"],
+        experiment["val_loader"],
+        experiment["criterion"],
+        experiment["optimizer"],
+        experiment["device"],
+        config,
+        run_metadata=run_metadata,
+    )
+
+    training_curves_path = _resolve_output(
+        project_root, output_config["training_curves"]
+    )
+    confusion_matrix_path = _resolve_output(
+        project_root, output_config["confusion_matrix"]
+    )
+    roc_pr_path = _resolve_output(
+        project_root, output_config["roc_pr_curve"]
+    )
+    predictions_path = _resolve_output(
+        project_root, output_config["predictions"]
+    )
+    plot_training_history(
+        result["history"], training_curves_path, result["best_epoch"]
+    )
+    plot_confusion_matrix(result["metrics"], confusion_matrix_path)
+    plot_roc_pr_comparison(
+        [
+            (
+                "H0 Logistic Regression",
+                project_root
+                / "outputs"
+                / "predictions"
+                / "H0_logistic_unweighted.csv",
+            ),
+            (
+                "H1 Weighted Logistic Regression",
+                project_root
+                / "outputs"
+                / "predictions"
+                / "H1_logistic_weighted.csv",
+            ),
+            ("B0 ResNet18", predictions_path),
+        ],
+        roc_pr_path,
+    )
+
+    log_path = _resolve_output(
+        project_root, output_config["training_log"]
+    )
+    with ensure_parent(log_path).open("a", encoding="utf-8") as handle:
+        handle.write(
+            "generated_artifacts="
+            f"config:{config_path} "
+            f"environment:{_resolve_output(project_root, output_config['environment'])} "
+            f"training_curves:{training_curves_path} "
+            f"confusion_matrix:{confusion_matrix_path} "
+            f"roc_pr_curve:{roc_pr_path}\n"
+        )
+
+    return result
+
+
 def run_one_batch_smoke(experiment, config):
     """Run exactly one train step and one validation forward pass."""
     device = experiment["device"]
@@ -496,10 +901,16 @@ def parse_args(args=None):
     )
     parser.add_argument("--config", required=True)
     parser.add_argument("--num-workers", type=int, default=None)
-    parser.add_argument(
+    execution = parser.add_mutually_exclusive_group()
+    execution.add_argument(
         "--smoke-test",
         action="store_true",
         help="Run one train batch and one validation batch only.",
+    )
+    execution.add_argument(
+        "--fit",
+        action="store_true",
+        help="Run the full configured experiment and save its artifacts.",
     )
     return parser.parse_args(args)
 
@@ -518,17 +929,58 @@ def main(args=None):
     print("Device:", experiment["device"])
     print("Training samples:", len(experiment["train_df"]))
     print("Validation samples:", len(experiment["val_df"]))
+    print(
+        "Training benign:",
+        int((experiment["train_df"]["target"] == 0).sum()),
+    )
+    print(
+        "Training melanoma:",
+        int((experiment["train_df"]["target"] == 1).sum()),
+    )
+    print(
+        "Validation benign:",
+        int((experiment["val_df"]["target"] == 0).sum()),
+    )
+    print(
+        "Validation melanoma:",
+        int((experiment["val_df"]["target"] == 1).sum()),
+    )
+    train_patients = set(experiment["train_df"]["patient_id"].astype(str))
+    val_patients = set(experiment["val_df"]["patient_id"].astype(str))
+    print("Patient overlap:", len(train_patients & val_patients))
     print("Loss:", experiment["loss_info"]["loss"])
     print("pos_weight:", experiment["loss_info"]["pos_weight"])
     print("Model:", config["model"]["architecture"])
+    print("Weights:", config["model"]["weights"])
     print("Image size:", config["data"]["image_size"])
     print("Batch size:", config["data"]["batch_size"])
+    print("Workers:", experiment["train_loader"].num_workers)
+    print("Max epochs:", config["training"]["epochs"])
+    print(
+        "Early stopping patience:",
+        config["training"]["early_stopping"]["patience"],
+    )
+    print(
+        "Checkpoint metric:",
+        config["evaluation"]["checkpoint_metric"],
+    )
 
     if arguments.smoke_test:
         smoke = run_one_batch_smoke(experiment, config)
         print("Smoke test:", smoke)
 
-    print("Pipeline setup successful. Full training belongs to Phase F.")
+    if arguments.fit:
+        print("Starting authoritative configured experiment.", flush=True)
+        result = run_full_experiment(experiment, config, project_root)
+        print(
+            "Experiment complete:",
+            f"best_epoch={result['best_epoch']}",
+            f"best_roc_auc={result['best_metric']:.8f}",
+            flush=True,
+        )
+        return
+
+    print("Pipeline setup successful. Full training requires --fit.")
 
 
 if __name__ == "__main__":

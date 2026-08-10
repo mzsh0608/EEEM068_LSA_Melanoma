@@ -7,6 +7,7 @@ import sys
 from pathlib import Path
 
 import numpy as np
+import sklearn
 import torch
 import torchvision
 import yaml
@@ -68,6 +69,9 @@ def capture_environment():
     return {
         "python_version": platform.python_version(),
         "python_full": sys.version,
+        "platform": platform.platform(),
+        "numpy_version": np.__version__,
+        "scikit_learn_version": sklearn.__version__,
         "torch_version": torch.__version__,
         "torchvision_version": torchvision.__version__,
         "cuda_runtime": torch.version.cuda,
