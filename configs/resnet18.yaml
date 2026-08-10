@@ -1,25 +1,67 @@
 experiment_id: B0
+experiment_name: resnet18_weighted_bce
 
 seed: 42
-fold: 0
+validation_fold: 0
 
 model:
   architecture: resnet18
   pretrained: true
+  weights: IMAGENET1K_V1
   use_metadata: false
+  fine_tune_all: true
+  num_outputs: 1
 
 data:
   image_size: 224
   batch_size: 32
   num_workers: 4
+  pin_memory: true
+  persistent_workers: true
+  drop_last: false
+  train_shuffle: true
+
+transforms:
+  resize_interpolation: bilinear
+  horizontal_flip_probability: 0.5
+  vertical_flip_probability: 0.5
+  rotation_degrees: 15
+  brightness: 0.10
+  contrast: 0.10
+  normalization_mean:
+    - 0.485
+    - 0.456
+    - 0.406
+  normalization_std:
+    - 0.229
+    - 0.224
+    - 0.225
 
 training:
   epochs: 10
+  optimizer: adamw
   learning_rate: 0.0001
   weight_decay: 0.0001
-  optimizer: adamw
   loss: weighted_bce
+  scheduler: none
+  amp: true
+  early_stopping:
+    enabled: true
+    patience: 3
 
 evaluation:
   threshold: 0.5
   checkpoint_metric: roc_auc
+  checkpoint_mode: max
+
+outputs:
+  experiment_directory: logs/B0_resnet18
+  checkpoint: outputs/checkpoints/B0_resnet18_best.pt
+  predictions: outputs/predictions/B0_resnet18.csv
+  training_history: logs/B0_resnet18/history.csv
+  metrics: logs/B0_resnet18/metrics.json
+  environment: logs/B0_resnet18/environment.json
+  training_log: logs/B0_resnet18/training.log
+  training_curves: outputs/figures/B0_training_curves.png
+  confusion_matrix: outputs/figures/B0_confusion_matrix.png
+  roc_pr_curve: outputs/figures/B0_roc_pr.png
