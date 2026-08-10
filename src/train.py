@@ -25,7 +25,7 @@ from src.evaluate import (
     save_metrics_json,
 )
 from src.losses import build_loss
-from src.models import build_model
+from src.models import build_model, get_final_classifier
 from src.transforms import get_train_transforms, get_val_transforms
 from src.utils import (
     capture_environment,
@@ -193,6 +193,7 @@ def build_resolved_config(config, experiment):
     training_config = config["training"]
     early_config = training_config["early_stopping"]
     device = experiment["device"]
+    model = experiment["model"]
 
     patient_overlap = None
     if "patient_id" in train_frame and "patient_id" in val_frame:
@@ -206,6 +207,16 @@ def build_resolved_config(config, experiment):
         "architecture": config["model"]["architecture"],
         "weights": config["model"]["weights"],
         "fine_tune_all": bool(config["model"]["fine_tune_all"]),
+        "total_parameters": int(
+            sum(parameter.numel() for parameter in model.parameters())
+        ),
+        "trainable_parameters": int(
+            sum(
+                parameter.numel()
+                for parameter in model.parameters()
+                if parameter.requires_grad
+            )
+        ),
         "seed": int(config["seed"]),
         "validation_fold": int(config["validation_fold"]),
         "train_samples": int(len(train_targets)),
@@ -298,7 +309,7 @@ def plot_training_history(history, output_path, best_epoch):
     plt.close(figure)
 
 
-def plot_confusion_matrix(metrics, output_path):
+def plot_confusion_matrix(metrics, output_path, experiment_id="Model"):
     """Save the best-checkpoint threshold-0.5 confusion matrix."""
     matrix = [
         [metrics["tn"], metrics["fp"]],
@@ -323,7 +334,10 @@ def plot_confusion_matrix(metrics, output_path):
         yticklabels=["Benign", "Melanoma"],
         xlabel="Predicted label",
         ylabel="True label",
-        title=f"B0 confusion matrix at threshold {metrics['threshold']:.1f}",
+        title=(
+            f"{experiment_id} confusion matrix at threshold "
+            f"{metrics['threshold']:.1f}"
+        ),
     )
     figure.colorbar(image, ax=axis, fraction=0.046, pad=0.04)
     figure.tight_layout()
@@ -349,10 +363,12 @@ def plot_roc_pr_comparison(prediction_files, output_path):
         precision, recall, _ = precision_recall_curve(
             frame["target"], frame["probability"]
         )
+        line_width = 2.2 if label.startswith(("B0", "M1")) else 1.3
         axes[0].plot(
             false_positive_rate,
             true_positive_rate,
             label=f"{label} (AUC={metrics['roc_auc']:.3f})",
+            linewidth=line_width,
         )
         axes[1].plot(
             recall,
@@ -361,6 +377,7 @@ def plot_roc_pr_comparison(prediction_files, output_path):
                 f"{label} "
                 f"(AP={metrics['pr_auc_average_precision']:.3f})"
             ),
+            linewidth=line_width,
         )
         prevalence = float(frame["target"].mean())
 
@@ -475,7 +492,9 @@ def fit_model(
             f"learning_rate:{run_metadata.get('learning_rate')} "
             f"weight_decay:{run_metadata.get('weight_decay')} "
             f"amp_active:{run_metadata.get('amp_active')} "
-            f"max_epochs:{max_epochs} patience:{patience}"
+            f"max_epochs:{max_epochs} patience:{patience} "
+            f"total_parameters:{run_metadata.get('total_parameters')} "
+            f"trainable_parameters:{run_metadata.get('trainable_parameters')}"
         ),
     ]
     ensure_parent(log_path).write_text(
@@ -716,7 +735,7 @@ def build_experiment(
     if not model_config.get("fine_tune_all", True):
         for parameter in model.parameters():
             parameter.requires_grad = False
-        for parameter in model.fc.parameters():
+        for parameter in get_final_classifier(model).parameters():
             parameter.requires_grad = True
     model = model.to(device)
 
@@ -793,27 +812,39 @@ def run_full_experiment(experiment, config, project_root):
     plot_training_history(
         result["history"], training_curves_path, result["best_epoch"]
     )
-    plot_confusion_matrix(result["metrics"], confusion_matrix_path)
-    plot_roc_pr_comparison(
-        [
-            (
-                "H0 Logistic Regression",
-                project_root
-                / "outputs"
-                / "predictions"
-                / "H0_logistic_unweighted.csv",
-            ),
-            (
-                "H1 Weighted Logistic Regression",
-                project_root
-                / "outputs"
-                / "predictions"
-                / "H1_logistic_weighted.csv",
-            ),
-            ("B0 ResNet18", predictions_path),
-        ],
-        roc_pr_path,
+    plot_confusion_matrix(
+        result["metrics"],
+        confusion_matrix_path,
+        experiment_id=config["experiment_id"],
     )
+    prediction_files = [
+        (
+            "H0 Logistic Regression",
+            project_root
+            / "outputs"
+            / "predictions"
+            / "H0_logistic_unweighted.csv",
+        ),
+        (
+            "H1 Weighted Logistic Regression",
+            project_root
+            / "outputs"
+            / "predictions"
+            / "H1_logistic_weighted.csv",
+        ),
+    ]
+    b0_predictions = (
+        project_root / "outputs" / "predictions" / "B0_resnet18.csv"
+    )
+    if config["experiment_id"] != "B0":
+        prediction_files.append(("B0 ResNet18", b0_predictions))
+    current_label = (
+        "B0 ResNet18"
+        if config["experiment_id"] == "B0"
+        else f"{config['experiment_id']} ConvNeXt-Tiny"
+    )
+    prediction_files.append((current_label, predictions_path))
+    plot_roc_pr_comparison(prediction_files, roc_pr_path)
 
     log_path = _resolve_output(
         project_root, output_config["training_log"]
@@ -955,6 +986,18 @@ def main(args=None):
     print("Image size:", config["data"]["image_size"])
     print("Batch size:", config["data"]["batch_size"])
     print("Workers:", experiment["train_loader"].num_workers)
+    print(
+        "Total parameters:",
+        sum(parameter.numel() for parameter in experiment["model"].parameters()),
+    )
+    print(
+        "Trainable parameters:",
+        sum(
+            parameter.numel()
+            for parameter in experiment["model"].parameters()
+            if parameter.requires_grad
+        ),
+    )
     print("Max epochs:", config["training"]["epochs"])
     print(
         "Early stopping patience:",

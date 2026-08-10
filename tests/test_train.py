@@ -144,15 +144,16 @@ def test_full_experiment_creates_required_artifacts(tmp_path):
     baseline.to_csv(
         baseline_directory / "H1_logistic_weighted.csv", index=False
     )
+    baseline.to_csv(baseline_directory / "B0_resnet18.csv", index=False)
 
-    experiment_directory = tmp_path / "logs" / "B0_resnet18"
+    experiment_directory = tmp_path / "logs" / "M1_convnext_image"
     config = {
-        "experiment_id": "B0",
-        "experiment_name": "test_resnet18",
+        "experiment_id": "M1",
+        "experiment_name": "test_convnext_image",
         "seed": 42,
         "validation_fold": 0,
         "model": {
-            "architecture": "resnet18",
+            "architecture": "convnext_tiny",
             "weights": "IMAGENET1K_V1",
             "fine_tune_all": True,
         },
@@ -210,6 +211,14 @@ def test_full_experiment_creates_required_artifacts(tmp_path):
     result = run_full_experiment(experiment, config, tmp_path)
 
     assert result["predictions"].shape[0] == 4
+    resolved = json.loads(
+        (experiment_directory / "config.json").read_text()
+    )["resolved"]
+    expected_parameters = sum(
+        parameter.numel() for parameter in model.parameters()
+    )
+    assert resolved["total_parameters"] == expected_parameters
+    assert resolved["trainable_parameters"] == expected_parameters
     for path in [
         experiment_directory / "config.json",
         experiment_directory / "environment.json",
