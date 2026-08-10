@@ -145,3 +145,57 @@ TODO
 ## 9. Evaluation metrics
 
 TODO
+
+---
+
+## 10. Reusable PyTorch pipeline
+
+### Dataset and DataLoader
+
+A Dataset maps one index to one sample, including the image,
+target, image name, and patient ID. A DataLoader wraps the
+Dataset to create batches and control shuffling and worker-based
+loading. Training is shuffled, while validation preserves a
+deterministic order.
+
+### Why is validation not augmented?
+
+Validation uses only deterministic resizing and normalization.
+Stochastic augmentation would change the evaluation samples
+between passes and make model comparisons less reproducible.
+
+### BCEWithLogitsLoss
+
+The model produces an unbounded binary logit.
+`BCEWithLogitsLoss` combines the sigmoid operation and binary
+cross-entropy in a numerically stable implementation.
+
+### Positive-class weighting
+
+For weighted BCE, `pos_weight` is calculated from the training
+partition as the number of negative examples divided by the
+number of positive examples. This gives positive melanoma
+examples greater contribution to the training loss without
+using validation labels.
+
+### Transfer learning and fine-tuning
+
+B0 starts from ResNet18 weights pretrained on ImageNet and
+replaces the 1,000-class classifier with one binary output.
+The complete network will be fine-tuned rather than freezing the
+pretrained backbone.
+
+### Automatic mixed precision
+
+On CUDA, autocast can use lower-precision operations where
+appropriate, while gradient scaling reduces the risk of very
+small gradients underflowing. This can reduce memory use and
+computation time, but it does not guarantee identical results
+across every platform.
+
+### Why is sigmoid not part of the model?
+
+The loss expects raw logits, so adding sigmoid inside the model
+would duplicate that operation and reduce numerical stability.
+Sigmoid is applied only when probabilities are needed during
+validation or prediction.
