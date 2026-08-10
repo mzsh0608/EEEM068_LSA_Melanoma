@@ -298,13 +298,13 @@ def plot_pipeline(png_path: Path, pdf_path: Path) -> None:
         _draw_arrow(axis, (upper[0][0], upper[0][1] - 0.031), (lower[0][0], lower[0][1] + 0.031))
 
     image_boxes = [
-        ((0.22, 0.56), "RGB resize + training augmentation"),
+        ((0.22, 0.56), "RGB resize + normalisation\nTrain-only augmentation"),
         ((0.22, 0.45), "ResNet18 / ConvNeXt-Tiny"),
         ((0.22, 0.34), "Image representation"),
     ]
     metadata_boxes = [
         ((0.60, 0.56), "Age + sex + anatomical site"),
-        ((0.60, 0.45), "Training-only imputation, scaling,\nand one-hot encoding"),
+        ((0.60, 0.45), "Train-fitted imputation, scaling and encoding\nApplied to train and validation"),
         ((0.60, 0.34), "Small metadata MLP"),
     ]
     axis.text(0.22, 0.62, "IMAGE PATH", ha="center", va="bottom", fontsize=8.2, fontweight="bold")

@@ -2,12 +2,43 @@
   "phase": "J2B",
   "generated_at": "2026-08-10T13:14:36+02:00",
   "generation_script": "src/publication_assets.py",
+  "j2d_correction": {
+    "corrected_at": "2026-08-10T13:46:32+02:00",
+    "figure_id": "Fig_Main_01",
+    "scope": [
+      "outputs/final/figures/main/Fig_Main_01_Pipeline.png",
+      "outputs/final/figures/main/Fig_Main_01_Pipeline.pdf"
+    ],
+    "wording_changes": [
+      {
+        "from": "RGB resize + training augmentation",
+        "to": "RGB resize + normalisation\nTrain-only augmentation"
+      },
+      {
+        "from": "Training-only imputation, scaling,\nand one-hot encoding",
+        "to": "Train-fitted imputation, scaling and encoding\nApplied to train and validation"
+      }
+    ],
+    "visual_qc": {
+      "full_resolution": "PASS",
+      "reduced_width_900px": "PASS",
+      "text_readable": true,
+      "text_clipped": false,
+      "layout_collision": false
+    },
+    "sha256": {
+      "png_before": "d41df7186020c16ae66d5ccc45c0b114bb090dc9a24dd759d02978c31874146b",
+      "png_after": "8f479f82aeadac742594177a6a7f1e4ca204fbdafb9463b1d7b8a51f66fe2e71",
+      "pdf_before": "75f42a97032d266691208cbd0037980f5e2f12719f55fc51a649969f333ffc8f",
+      "pdf_after": "1ea13f31c600f8904c0dadcb72fdd67d590bcb59e81db5504365a2869e7e8394"
+    }
+  },
   "automated_qc": {
     "figure_files": [
       {
         "figure_id": "Fig_Main_01",
-        "png_bytes": 258458,
-        "pdf_bytes": 37001,
+        "png_bytes": 265204,
+        "pdf_bytes": 37096,
         "png_width": 2779,
         "png_height": 1699,
         "status": "PASS"
@@ -147,7 +178,8 @@
       "Moved checkpoint epoch labels to a figure-level note to avoid AP-trace overlap.",
       "Removed the confusion-matrix colorbar and added a scale note to prevent M2 label compression.",
       "Reduced bootstrap title and legend whitespace.",
-      "Made LaTeX alignment data-aware and fixed Pandas 3 display-column formatting."
+      "Made LaTeX alignment data-aware and fixed Pandas 3 display-column formatting.",
+      "Clarified train-only image augmentation and train-fitted metadata preprocessing in Fig_Main_01."
     ]
   },
   "terminology": {
