@@ -7,7 +7,6 @@ import pandas as pd
 from sklearn.metrics import (
     accuracy_score,
     average_precision_score,
-    balanced_accuracy_score,
     confusion_matrix,
     f1_score,
     precision_score,
@@ -23,6 +22,11 @@ def calculate_binary_metrics(
 ):
     """
     Calculate binary-classification metrics.
+
+    PR-AUC is represented by scikit-learn's Average Precision
+    statistic rather than trapezoidal integration of the
+    precision-recall curve. If ``y_true`` contains only one class,
+    ROC-AUC and Average Precision are returned as ``None``.
 
     Parameters
     ----------
@@ -43,8 +47,13 @@ def calculate_binary_metrics(
         threshold-dependent metrics.
     """
 
-    y_true = np.asarray(y_true).astype(int)
-    y_prob = np.asarray(y_prob).astype(float)
+    y_true = np.asarray(y_true)
+    y_prob = np.asarray(y_prob, dtype=float)
+
+    if y_true.ndim != 1 or y_prob.ndim != 1:
+        raise ValueError(
+            "y_true and y_prob must be one-dimensional."
+        )
 
     if len(y_true) != len(y_prob):
         raise ValueError(
@@ -56,11 +65,26 @@ def calculate_binary_metrics(
             "Cannot evaluate an empty dataset."
         )
 
-    if not np.all(
-        np.isin(y_true, [0, 1])
-    ):
+    try:
+        numeric_targets = y_true.astype(float)
+    except (TypeError, ValueError) as exc:
+        raise ValueError(
+            "y_true must contain only numeric binary labels."
+        ) from exc
+
+    if not np.all(np.isfinite(numeric_targets)):
+        raise ValueError(
+            "y_true must not contain NaN or infinite values."
+        )
+
+    if not np.all(np.isin(numeric_targets, [0, 1])):
         raise ValueError(
             "y_true must contain only 0 and 1."
+        )
+
+    if not np.all(np.isfinite(y_prob)):
+        raise ValueError(
+            "y_prob must not contain NaN or infinite values."
         )
 
     if np.any(
@@ -70,10 +94,19 @@ def calculate_binary_metrics(
             "y_prob must contain probabilities in [0, 1]."
         )
 
-    if not 0 <= threshold <= 1:
+    try:
+        threshold = float(threshold)
+    except (TypeError, ValueError) as exc:
+        raise ValueError(
+            "threshold must be a finite number in [0, 1]."
+        ) from exc
+
+    if not np.isfinite(threshold) or not 0 <= threshold <= 1:
         raise ValueError(
             "threshold must lie between 0 and 1."
         )
+
+    y_true = numeric_targets.astype(int)
 
     y_pred = (
         y_prob >= threshold
@@ -97,25 +130,28 @@ def calculate_binary_metrics(
         else 0.0
     )
 
+    has_both_classes = np.unique(y_true).size == 2
+
+    roc_auc = (
+        float(roc_auc_score(y_true, y_prob))
+        if has_both_classes
+        else None
+    )
+    average_precision = (
+        float(average_precision_score(y_true, y_prob))
+        if has_both_classes
+        else None
+    )
+
     metrics = {
         "threshold": float(threshold),
 
         # Threshold-independent metrics
-        "roc_auc": float(
-            roc_auc_score(
-                y_true,
-                y_prob,
-            )
-        ),
+        "roc_auc": roc_auc,
 
         # Average Precision is used as the summary
         # statistic for the precision-recall curve.
-        "pr_auc_average_precision": float(
-            average_precision_score(
-                y_true,
-                y_prob,
-            )
-        ),
+        "pr_auc_average_precision": average_precision,
 
         # Threshold-dependent metrics
         "accuracy": float(
@@ -126,10 +162,7 @@ def calculate_binary_metrics(
         ),
 
         "balanced_accuracy": float(
-            balanced_accuracy_score(
-                y_true,
-                y_pred,
-            )
+            (sensitivity + specificity) / 2
         ),
 
         "precision": float(
@@ -200,9 +233,13 @@ def make_prediction_dataframe(
     y_true = np.asarray(y_true).astype(int)
     y_prob = np.asarray(y_prob).astype(float)
 
-    if len(metadata_df) != len(y_true):
+    if not (
+        len(metadata_df)
+        == len(y_true)
+        == len(y_prob)
+    ):
         raise ValueError(
-            "metadata_df and predictions must have equal length."
+            "metadata_df, y_true, and y_prob must have equal length."
         )
 
     columns = [
