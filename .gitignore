@@ -63,3 +63,10 @@ data/test.csv
 # Raw image folders
 data/train_images/
 data/test_images/
+
+# ==============================
+# Generated manual review package
+# ==============================
+
+review_package/
+Phase_J_Figure_Review.zip
