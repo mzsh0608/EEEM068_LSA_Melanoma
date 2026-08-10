@@ -1,0 +1,49 @@
+{
+  "manifest_version": 1,
+  "created_at": "2026-08-10T12:03:30+02:00",
+  "purpose": "Mandatory interpretation boundaries for final Phase J synthesis.",
+  "boundaries": [
+    {
+      "comparison": "H0_to_H1",
+      "classification": "controlled_historical_LR_class_weighting_comparison",
+      "interpretation": "H0 and H1 isolate the historical Logistic Regression class-weighting change under their shared image representation and data protocol.",
+      "prohibited_inference": "Do not generalize this comparison into evidence about deep-model architecture effects."
+    },
+    {
+      "comparison": "H0_H1_to_B0",
+      "classification": "system_level_historical_progression",
+      "interpretation": "The progression changes representation, resolution, training sample count, ImageNet pretraining, augmentation, and architecture together.",
+      "prohibited_inference": "Do not present the observed difference as an isolated architecture effect."
+    },
+    {
+      "comparison": "B0_to_M1",
+      "classification": "matched_external_protocol_architecture_family_comparison",
+      "interpretation": "This is the cleanest architecture-family comparison because the external data, image, transform, loss, optimizer, checkpoint, and threshold protocol is matched.",
+      "prohibited_inference": "Do not assign the difference causally to an individual ConvNeXt component."
+    },
+    {
+      "comparison": "M1_to_M2",
+      "classification": "metadata_fusion_system_ablation",
+      "interpretation": "This is the principal image-only versus metadata-fusion system comparison under the matched external protocol.",
+      "prohibited_inference": "Do not treat per-sample M2-minus-M1 probability differences as causal metadata contributions because the models were independently trained."
+    },
+    {
+      "comparison": "M1_M2_per_sample_probability_differences",
+      "classification": "descriptive_model_disagreement",
+      "interpretation": "A difference records that M2 changed a prediction or probability relative to M1.",
+      "prohibited_inference": "Do not claim that age, sex, or anatomical site caused the individual change."
+    },
+    {
+      "comparison": "paired_patient_bootstrap",
+      "classification": "internal_paired_patient_level_resampling",
+      "interpretation": "The bootstrap quantifies internal uncertainty for paired M1/M2 metric differences on Fold 0 while preserving patient-cluster multiplicity.",
+      "prohibited_inference": "Do not describe the intervals as external validation or independent-test uncertainty."
+    },
+    {
+      "comparison": "M2_Grad-CAM",
+      "classification": "metadata_conditioned_image_branch_positive_logit_attribution",
+      "interpretation": "Grad-CAM targets the raw melanoma logit and shows coarse image-branch spatial attribution conditioned on supplied metadata.",
+      "prohibited_inference": "Do not present it as an explanation of metadata contribution, benign-class evidence, clinical reasoning, or causality."
+    }
+  ]
+}

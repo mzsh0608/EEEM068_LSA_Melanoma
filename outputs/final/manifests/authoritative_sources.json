@@ -1,0 +1,217 @@
+{
+  "manifest_version": 1,
+  "created_at": "2026-08-10T12:03:30+02:00",
+  "purpose": "Final claim-to-source mapping for Phase J evidence consolidation.",
+  "sources": [
+    {
+      "claim_category": "dataset_counts",
+      "source_path": "outputs/dataset_summary.json",
+      "source_type": "json",
+      "authoritative_status": "authoritative_derived_summary",
+      "notes": "Derived from data/train.csv; records image, class, prevalence, patient, image-availability, and metadata-missingness counts."
+    },
+    {
+      "claim_category": "fold_counts",
+      "source_path": "data/train_folds.csv",
+      "source_type": "csv",
+      "authoritative_status": "authoritative_frozen_manifest",
+      "notes": "Join one-to-one with data/train.csv on image_name; fold 0 is the fixed patient-aware validation fold and nonzero folds are training."
+    },
+    {
+      "claim_category": "patient_overlap",
+      "source_path": "data/train_folds.csv",
+      "source_type": "csv",
+      "authoritative_status": "authoritative_frozen_manifest",
+      "notes": "Join with data/train.csv to compare patient_id sets for fold 0 and nonzero folds; verified overlap is zero."
+    },
+    {
+      "claim_category": "duplicate_audit",
+      "source_path": "outputs/analysis/data_integrity/exact_image_duplicate_summary.json",
+      "source_type": "json",
+      "authoritative_status": "authoritative_derived_audit",
+      "notes": "Summary of SHA-256 hashes of all local JPEG file bytes; detailed records are in exact_image_duplicates.csv."
+    },
+    {
+      "claim_category": "H0_metrics",
+      "source_path": "logs/H0_logistic_unweighted/metrics.json",
+      "source_type": "json",
+      "authoritative_status": "authoritative_frozen_metrics",
+      "notes": "Threshold 0.5 metrics; Average Precision is stored under the legacy pr_auc_average_precision key."
+    },
+    {
+      "claim_category": "H1_metrics",
+      "source_path": "logs/H1_logistic_weighted/metrics.json",
+      "source_type": "json",
+      "authoritative_status": "authoritative_frozen_metrics",
+      "notes": "Primary threshold 0.5 metrics; the historical threshold-0.3 sensitivity analysis is separate."
+    },
+    {
+      "claim_category": "B0_metrics",
+      "source_path": "logs/B0_resnet18/metrics.json",
+      "source_type": "json",
+      "authoritative_status": "authoritative_frozen_metrics",
+      "notes": "Threshold 0.5 metrics from the fixed Fold-0 validation predictions."
+    },
+    {
+      "claim_category": "M1_metrics",
+      "source_path": "logs/M1_convnext_image/metrics.json",
+      "source_type": "json",
+      "authoritative_status": "authoritative_frozen_metrics",
+      "notes": "Threshold 0.5 metrics from the fixed Fold-0 validation predictions."
+    },
+    {
+      "claim_category": "M2_metrics",
+      "source_path": "logs/M2_convnext_metadata/metrics.json",
+      "source_type": "json",
+      "authoritative_status": "authoritative_frozen_metrics",
+      "notes": "Threshold 0.5 metrics from the fixed Fold-0 validation predictions."
+    },
+    {
+      "claim_category": "H0_predictions",
+      "source_path": "outputs/predictions/H0_logistic_unweighted.csv",
+      "source_type": "csv",
+      "authoritative_status": "authoritative_frozen_predictions",
+      "notes": "One probability per fixed Fold-0 validation image; use image_name rather than row position when joining."
+    },
+    {
+      "claim_category": "H1_predictions",
+      "source_path": "outputs/predictions/H1_logistic_weighted.csv",
+      "source_type": "csv",
+      "authoritative_status": "authoritative_frozen_predictions",
+      "notes": "One probability per fixed Fold-0 validation image; use image_name rather than row position when joining."
+    },
+    {
+      "claim_category": "B0_predictions",
+      "source_path": "outputs/predictions/B0_resnet18.csv",
+      "source_type": "csv",
+      "authoritative_status": "authoritative_frozen_predictions",
+      "notes": "One probability per fixed Fold-0 validation image; use image_name rather than row position when joining."
+    },
+    {
+      "claim_category": "M1_predictions",
+      "source_path": "outputs/predictions/M1_convnext_image.csv",
+      "source_type": "csv",
+      "authoritative_status": "authoritative_frozen_predictions",
+      "notes": "One probability per fixed Fold-0 validation image; use image_name rather than row position when joining."
+    },
+    {
+      "claim_category": "M2_predictions",
+      "source_path": "outputs/predictions/M2_convnext_metadata.csv",
+      "source_type": "csv",
+      "authoritative_status": "authoritative_frozen_predictions",
+      "notes": "One probability per fixed Fold-0 validation image; includes review metadata columns but model metrics use target and probability."
+    },
+    {
+      "claim_category": "B0_history",
+      "source_path": "logs/B0_resnet18/history.csv",
+      "source_type": "csv",
+      "authoritative_status": "authoritative_frozen_history",
+      "notes": "Epoch-level train loss, validation loss, validation ROC-AUC, validation AP, threshold metrics, learning rate, and seconds."
+    },
+    {
+      "claim_category": "M1_history",
+      "source_path": "logs/M1_convnext_image/history.csv",
+      "source_type": "csv",
+      "authoritative_status": "authoritative_frozen_history",
+      "notes": "Epoch-level train loss, validation loss, validation ROC-AUC, validation AP, threshold metrics, learning rate, and seconds."
+    },
+    {
+      "claim_category": "M2_history",
+      "source_path": "logs/M2_convnext_metadata/history.csv",
+      "source_type": "csv",
+      "authoritative_status": "authoritative_frozen_history",
+      "notes": "Epoch-level train loss, validation loss, validation ROC-AUC, validation AP, threshold metrics, learning rate, and seconds."
+    },
+    {
+      "claim_category": "M1_threshold_analysis",
+      "source_path": "outputs/analysis/threshold/M1_threshold_analysis.csv",
+      "source_type": "csv",
+      "authoritative_status": "authoritative_derived_analysis",
+      "notes": "Exploratory fixed-grid threshold analysis on the same Fold-0 validation set; no threshold optimization claim."
+    },
+    {
+      "claim_category": "M2_threshold_analysis",
+      "source_path": "outputs/analysis/threshold/M2_threshold_analysis.csv",
+      "source_type": "csv",
+      "authoritative_status": "authoritative_derived_analysis",
+      "notes": "Exploratory fixed-grid threshold analysis on the same Fold-0 validation set; no threshold optimization claim."
+    },
+    {
+      "claim_category": "M1_M2_disagreement_analysis",
+      "source_path": "outputs/analysis/failures/M1_M2_disagreement_summary.json",
+      "source_type": "json",
+      "authoritative_status": "authoritative_derived_analysis",
+      "notes": "Summary of prediction transitions and probability differences; detailed rows are in M1_M2_disagreements.csv."
+    },
+    {
+      "claim_category": "M1_subgroup_analysis",
+      "source_path": "outputs/analysis/subgroups/M1_subgroup_metrics.csv",
+      "source_type": "csv",
+      "authoritative_status": "authoritative_derived_analysis",
+      "notes": "Exploratory Fold-0 subgroup metrics with support and small-positive-count fields."
+    },
+    {
+      "claim_category": "M2_subgroup_analysis",
+      "source_path": "outputs/analysis/subgroups/M2_subgroup_metrics.csv",
+      "source_type": "csv",
+      "authoritative_status": "authoritative_derived_analysis",
+      "notes": "Exploratory Fold-0 subgroup metrics with support and small-positive-count fields."
+    },
+    {
+      "claim_category": "bootstrap_summary",
+      "source_path": "outputs/analysis/bootstrap/M1_M2_bootstrap_summary.json",
+      "source_type": "json",
+      "authoritative_status": "authoritative_derived_analysis",
+      "notes": "Paired patient-level bootstrap with 1000 iterations and seed 42; internal uncertainty, not external validation."
+    },
+    {
+      "claim_category": "M2_metadata_summary",
+      "source_path": "logs/M2_convnext_metadata/metadata_summary.json",
+      "source_type": "json",
+      "authoritative_status": "authoritative_frozen_training_evidence",
+      "notes": "Training-fitted metadata schema, imputation, scaling, categories, feature names, dimensions, and serialization checks."
+    },
+    {
+      "claim_category": "checkpoint_manifest",
+      "source_path": "outputs/analysis/technical_audit/checkpoint_manifest.json",
+      "source_type": "json",
+      "authoritative_status": "authoritative_derived_audit",
+      "notes": "Local B0, M1, and M2 checkpoint existence, byte sizes, SHA-256 hashes, ignored status, and tracked evidence paths."
+    },
+    {
+      "claim_category": "training_timing_audit",
+      "source_path": "outputs/analysis/technical_audit/training_timing_audit.csv",
+      "source_type": "csv",
+      "authoritative_status": "authoritative_derived_audit",
+      "notes": "Verified epoch counts, parameter counts, epoch-time summaries, reported fit durations, and timing scopes."
+    },
+    {
+      "claim_category": "Grad-CAM_configuration",
+      "source_path": "outputs/analysis/gradcam/M2_gradcam_summary.json",
+      "source_type": "json",
+      "authoritative_status": "authoritative_derived_analysis",
+      "notes": "Records checkpoint, saved metadata preprocessor, no refit, metadata-conditioned forward pass, target layer, raw melanoma-logit target, cases, and CAM checks."
+    },
+    {
+      "claim_category": "failure_review",
+      "source_path": "outputs/analysis/failures/M2_failure_review.csv",
+      "source_type": "csv",
+      "authoritative_status": "authoritative_review_record",
+      "notes": "Manual visual review annotations for the 24 content-unique selected FN, FP, TP, and TN cases."
+    },
+    {
+      "claim_category": "precision_recall_metric_definition",
+      "source_path": "src/evaluate.py",
+      "source_type": "python_source",
+      "authoritative_status": "authoritative_code_definition",
+      "notes": "calculate_binary_metrics calls sklearn.metrics.average_precision_score; final-facing terminology is Average Precision (AP), not a separately integrated trapezoidal PR-AUC."
+    },
+    {
+      "claim_category": "validation_set_definition",
+      "source_path": "data/train_folds.csv",
+      "source_type": "csv",
+      "authoritative_status": "authoritative_frozen_manifest",
+      "notes": "Fold 0 is the fixed patient-aware validation fold, not a test set or independent test cohort."
+    }
+  ]
+}
