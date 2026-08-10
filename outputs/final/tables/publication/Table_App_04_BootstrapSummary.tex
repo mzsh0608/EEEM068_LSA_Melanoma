@@ -1,0 +1,15 @@
+\begin{table*}[t]
+\centering
+\small
+\begin{tabular}{lrrrrrl}
+\toprule
+Metric & Observed M2 - M1 & Median & 2.5 percentile & 97.5 percentile & Iterations & Unit \\
+\midrule
+roc\_auc\_difference & -0.003 & -0.003 & -0.020 & 0.013 & 1000 & patient \\
+average\_precision\_difference & -0.004 & -0.007 & -0.052 & 0.031 & 1000 & patient \\
+sensitivity\_difference & -0.077 & -0.075 & -0.140 & -0.026 & 1000 & patient \\
+\bottomrule
+\end{tabular}
+\vspace{2pt}
+\parbox{0.98\textwidth}{\footnotesize Note: Paired patient-level bootstrap on Fold-0 validation; this is internal uncertainty, not external validation.}
+\end{table*}

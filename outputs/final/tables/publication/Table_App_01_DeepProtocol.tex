@@ -1,0 +1,15 @@
+\begin{table*}[t]
+\centering
+\small
+\begin{tabular}{lllrrlrlrrrrrrr}
+\toprule
+Model & Architecture & Pretraining & Image size & Batch & Loss & pos\_weight & Optimizer & Learning rate & Weight decay & Maximum epochs & Patience & Actual epochs & Best epoch & Parameters \\
+\midrule
+B0 & resnet18 & IMAGENET1K\_V1 & 224 & 32 & weighted\_bce & 55.743 & adamw & 1.0e-04 & 1.0e-04 & 10 & 3 & 7 & 4 & 11177025 \\
+M1 & convnext\_tiny & IMAGENET1K\_V1 & 224 & 32 & weighted\_bce & 55.743 & adamw & 1.0e-04 & 1.0e-04 & 10 & 3 & 7 & 4 & 27820897 \\
+M2 & convnext\_tiny\_metadata & IMAGENET1K\_V1 & 224 & 32 & weighted\_bce & 55.743 & adamw & 1.0e-04 & 1.0e-04 & 10 & 3 & 10 & 8 & 27821313 \\
+\bottomrule
+\end{tabular}
+\vspace{2pt}
+\parbox{0.98\textwidth}{\footnotesize Note: Shared Fold-0 deep-model protocol; checkpoint selection used maximum validation ROC-AUC.}
+\end{table*}

@@ -1,0 +1,158 @@
+{
+  "phase": "J2B",
+  "generated_at": "2026-08-10T13:14:36+02:00",
+  "generation_script": "src/publication_assets.py",
+  "automated_qc": {
+    "figure_files": [
+      {
+        "figure_id": "Fig_Main_01",
+        "png_bytes": 258458,
+        "pdf_bytes": 37001,
+        "png_width": 2779,
+        "png_height": 1699,
+        "status": "PASS"
+      },
+      {
+        "figure_id": "Fig_Main_02",
+        "png_bytes": 157559,
+        "pdf_bytes": 27103,
+        "png_width": 2119,
+        "png_height": 1585,
+        "status": "PASS"
+      },
+      {
+        "figure_id": "Fig_App_01",
+        "png_bytes": 101417,
+        "pdf_bytes": 20343,
+        "png_width": 2114,
+        "png_height": 951,
+        "status": "PASS"
+      },
+      {
+        "figure_id": "Fig_App_02",
+        "png_bytes": 361048,
+        "pdf_bytes": 30523,
+        "png_width": 2126,
+        "png_height": 2385,
+        "status": "PASS"
+      },
+      {
+        "figure_id": "Fig_App_03",
+        "png_bytes": 83464,
+        "pdf_bytes": 21023,
+        "png_width": 2093,
+        "png_height": 828,
+        "status": "PASS"
+      },
+      {
+        "figure_id": "Fig_App_04",
+        "png_bytes": 217431,
+        "pdf_bytes": 33188,
+        "png_width": 2126,
+        "png_height": 931,
+        "status": "PASS"
+      },
+      {
+        "figure_id": "Fig_App_05",
+        "png_bytes": 113028,
+        "pdf_bytes": 30166,
+        "png_width": 2213,
+        "png_height": 830,
+        "status": "PASS"
+      },
+      {
+        "figure_id": "Fig_App_06",
+        "png_bytes": 7811455,
+        "pdf_bytes": 987336,
+        "png_width": 3340,
+        "png_height": 2326,
+        "status": "PASS"
+      },
+      {
+        "figure_id": "Fig_App_07",
+        "png_bytes": 6109028,
+        "pdf_bytes": 905926,
+        "png_width": 3004,
+        "png_height": 2901,
+        "status": "PASS"
+      },
+      {
+        "figure_id": "Fig_App_08",
+        "png_bytes": 221028,
+        "pdf_bytes": 33534,
+        "png_width": 2664,
+        "png_height": 2016,
+        "status": "PASS"
+      }
+    ],
+    "all_expected_files_exist": true,
+    "nonzero_file_sizes": true,
+    "expected_png_dimensions": true,
+    "plotting_data_finite": true,
+    "required_model_sets_verified": true,
+    "threshold_0_5_included": true,
+    "semantic_labels_verified_from_plot_configuration": true,
+    "publication_table_numbers_match_j1": true,
+    "roc_ap_values_match_j1": true,
+    "failure_case_content_unique": true,
+    "failure_and_gradcam_categories_complete": true
+  },
+  "frozen_integrity_before_generation": {
+    "frozen_scientific_artifacts": {
+      "checked": 9,
+      "status": "PASS"
+    },
+    "j1_authoritative_tables": {
+      "checked": 12,
+      "status": "PASS"
+    }
+  },
+  "frozen_integrity_after_generation": {
+    "frozen_scientific_artifacts": {
+      "checked": 9,
+      "status": "PASS"
+    },
+    "j1_authoritative_tables": {
+      "checked": 12,
+      "status": "PASS"
+    }
+  },
+  "manual_visual_review": {
+    "status": "PASS",
+    "figures_reviewed": [
+      "Fig_Main_01",
+      "Fig_Main_02",
+      "Fig_App_01",
+      "Fig_App_02",
+      "Fig_App_03",
+      "Fig_App_04",
+      "Fig_App_05",
+      "Fig_App_06",
+      "Fig_App_07",
+      "Fig_App_08"
+    ],
+    "checks": [
+      "labels not clipped",
+      "legends readable",
+      "axes correct",
+      "no obvious overlap",
+      "Grad-CAM panels correspond",
+      "failure cases loaded",
+      "failure selection content-unique",
+      "terminology reviewed"
+    ],
+    "issues_fixed": [
+      "Raised the pipeline evaluation box to prevent bottom-border clipping.",
+      "Moved the class-distribution legend above the panels to clear count labels.",
+      "Moved checkpoint epoch labels to a figure-level note to avoid AP-trace overlap.",
+      "Removed the confusion-matrix colorbar and added a scale note to prevent M2 label compression.",
+      "Reduced bootstrap title and legend whitespace.",
+      "Made LaTeX alignment data-aware and fixed Pandas 3 display-column formatting."
+    ]
+  },
+  "terminology": {
+    "average_precision_term": "AP",
+    "validation_term": "validation",
+    "prohibited_terms_absent_from_configured_text": true
+  }
+}

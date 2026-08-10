@@ -1,0 +1,17 @@
+\begin{table*}[t]
+\centering
+\small
+\begin{tabular}{lllrrrrrr}
+\toprule
+Model & Representation & Metadata & ROC-AUC & AP & Sensitivity & Specificity & F1 & Accuracy \\
+\midrule
+H0 & 64x64 grayscale flattened pixels & No & 0.657 & 0.039 & 0.009 & 0.998 & 0.016 & 0.981 \\
+H1 & 64x64 grayscale flattened pixels & No & 0.624 & 0.036 & 0.145 & 0.951 & 0.076 & 0.937 \\
+B0 & 224x224 RGB images & No & 0.864 & 0.119 & 0.795 & 0.768 & 0.108 & 0.768 \\
+M1 & 224x224 RGB images & No & 0.901 & 0.169 & 0.974 & 0.628 & 0.086 & 0.634 \\
+M2 & 224x224 RGB images + age, sex, anatomical site & Yes & 0.897 & 0.165 & 0.897 & 0.736 & 0.108 & 0.739 \\
+\bottomrule
+\end{tabular}
+\vspace{2pt}
+\parbox{0.98\textwidth}{\footnotesize Note: H0/H1 use the historical 5,000-image Logistic Regression training subset; B0/M1/M2 use the full 26,499-image training partition; threshold-dependent metrics use 0.5; values are fixed Fold-0 validation results.}
+\end{table*}

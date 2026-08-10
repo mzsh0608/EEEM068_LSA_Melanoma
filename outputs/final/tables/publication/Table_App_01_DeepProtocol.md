@@ -1,0 +1,9 @@
+# Table_App_01_DeepProtocol
+
+| Model | Architecture | Pretraining | Image size | Batch | Loss | pos_weight | Optimizer | Learning rate | Weight decay | Maximum epochs | Patience | Actual epochs | Best epoch | Parameters |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| B0 | resnet18 | IMAGENET1K_V1 | 224 | 32 | weighted_bce | 55.743 | adamw | 1.0e-04 | 1.0e-04 | 10 | 3 | 7 | 4 | 11177025 |
+| M1 | convnext_tiny | IMAGENET1K_V1 | 224 | 32 | weighted_bce | 55.743 | adamw | 1.0e-04 | 1.0e-04 | 10 | 3 | 7 | 4 | 27820897 |
+| M2 | convnext_tiny_metadata | IMAGENET1K_V1 | 224 | 32 | weighted_bce | 55.743 | adamw | 1.0e-04 | 1.0e-04 | 10 | 3 | 10 | 8 | 27821313 |
+
+**Source note:** Shared Fold-0 deep-model protocol; checkpoint selection used maximum validation ROC-AUC.

@@ -1,0 +1,28 @@
+\begin{table*}[t]
+\centering
+\small
+\begin{tabular}{llllll}
+\toprule
+Parameter & B0 & M1 & M2 & Selection category & Systematically tuned? \\
+\midrule
+image\_size & 224 & 224 & 224 & predeclared\_shared & No \\
+batch\_size & 32 & 32 & 32 & predeclared\_shared & No \\
+optimizer & adamw & adamw & adamw & predeclared\_shared & No \\
+learning\_rate & 0.0001 & 0.0001 & 0.0001 & predeclared\_shared & No \\
+weight\_decay & 0.0001 & 0.0001 & 0.0001 & predeclared\_shared & No \\
+loss & weighted\_bce & weighted\_bce & weighted\_bce & predeclared\_shared & No \\
+pos\_weight & 55.74304068522484 & 55.74304068522484 & 55.74304068522484 & data\_derived & No \\
+scheduler & none & none & none & predeclared\_shared & No \\
+max\_epochs & 10 & 10 & 10 & predeclared\_shared & No \\
+early\_stopping\_patience & 3 & 3 & 3 & predeclared\_shared & No \\
+checkpoint\_metric & roc\_auc & roc\_auc & roc\_auc & predeclared\_shared & No \\
+primary\_threshold & 0.5 & 0.5 & 0.5 & predeclared\_shared & No \\
+best\_epoch & 4 & 4 & 8 & checkpoint\_selected & No \\
+phase\_i\_threshold\_grid & not\_applicable & [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9] & [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9] & posthoc\_analysis\_only & No \\
+metadata\_embedding\_dim & not\_applicable & not\_applicable & 32 & architecture\_specific & No \\
+metadata\_dropout & not\_applicable & not\_applicable & 0.2 & architecture\_specific & No \\
+\bottomrule
+\end{tabular}
+\vspace{2pt}
+\parbox{0.98\textwidth}{\footnotesize Note: No systematic grid, random, or Bayesian search; common settings were deliberately matched.}
+\end{table*}

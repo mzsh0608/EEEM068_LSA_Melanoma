@@ -1,0 +1,18 @@
+# Table_App_03_MetadataAblation
+
+| Metric | M1 | M2 | M2 - M1 |
+| --- | --- | --- | --- |
+| roc_auc | 0.901 | 0.897 | -0.003 |
+| average_precision | 0.169 | 0.165 | -0.004 |
+| accuracy | 0.634 | 0.739 | 0.105 |
+| balanced_accuracy | 0.801 | 0.817 | 0.016 |
+| precision | 0.045 | 0.058 | 0.013 |
+| sensitivity | 0.974 | 0.897 | -0.077 |
+| specificity | 0.628 | 0.736 | 0.108 |
+| f1 | 0.086 | 0.108 | 0.022 |
+| tn | 4086 | 4791 | 705 |
+| fp | 2424 | 1719 | -705 |
+| fn | 3 | 12 | 9 |
+| tp | 114 | 105 | -9 |
+
+**Source note:** M1 image-only versus M2 metadata-fusion system ablation; per-sample differences are not causal metadata effects.
