@@ -1,0 +1,192 @@
+{
+  "analysis_timestamp": "2026-08-10T10:25:12+02:00",
+  "phase_h_start_commit": "2762ba659f7315e3d88e90e6b1d397119ef43aef",
+  "analysis_code_commit": "cf62541bf6cfa507a4014e75415f7f0e0cb0d604",
+  "source_prediction_files": {
+    "M1": "outputs/predictions/M1_convnext_image.csv",
+    "M2": "outputs/predictions/M2_convnext_metadata.csv"
+  },
+  "source_checkpoint_used_for_gradcam": "outputs/checkpoints/M2_convnext_metadata_best.pt",
+  "metadata_preprocessor_used_for_gradcam": "logs/M2_convnext_metadata/metadata_preprocessor.joblib",
+  "metadata_preprocessor_refitted": false,
+  "prediction_validation": {
+    "M1_rows": 6627,
+    "M2_rows": 6627,
+    "M1_unique_images": 6627,
+    "M2_unique_images": 6627,
+    "same_image_set": true,
+    "same_targets": true,
+    "same_patient_ids": true,
+    "M1_probability_range": [
+      0.0005696917651221,
+      0.980502188205719
+    ],
+    "M2_probability_range": [
+      0.0017585593741387,
+      0.9795469641685486
+    ]
+  },
+  "threshold_grid": [
+    0.1,
+    0.2,
+    0.3,
+    0.4,
+    0.5,
+    0.6,
+    0.7,
+    0.8,
+    0.9
+  ],
+  "primary_comparison_threshold": 0.5,
+  "threshold_optimization_performed": false,
+  "official_confusion_counts_at_0_5": {
+    "M1": {
+      "tn": 4086,
+      "fp": 2424,
+      "fn": 3,
+      "tp": 114
+    },
+    "M2": {
+      "tn": 4791,
+      "fp": 1719,
+      "fn": 12,
+      "tp": 105
+    }
+  },
+  "failure_selection": {
+    "threshold": 0.5,
+    "policy": {
+      "FN": "ascending M2 probability",
+      "FP": "descending M2 probability",
+      "TP": "descending M2 probability",
+      "TN": "ascending M2 probability"
+    },
+    "selected_per_confusion_category": 6,
+    "total_selected": 24,
+    "visually_reviewed": 24,
+    "duplicate_image_note": "ISIC_0149568 and ISIC_9022005 are byte-identical JPEGs from patient IP_0962375."
+  },
+  "disagreement_counts": {
+    "M1_NEG_TO_M2_NEG": 3968,
+    "M1_NEG_TO_M2_POS": 121,
+    "M1_POS_TO_M2_NEG": 835,
+    "M1_POS_TO_M2_POS": 1703,
+    "M1_FP_TO_M2_TN": 826,
+    "M1_TP_TO_M2_FN": 9,
+    "M1_TN_TO_M2_FP": 121,
+    "M1_FN_TO_M2_TP": 0
+  },
+  "age_group_definitions": {
+    "<40": "age < 40",
+    "40-59": "40 <= age < 60",
+    "60+": "age >= 60",
+    "unknown": "included only if age is missing"
+  },
+  "subgroup_variables": [
+    "sex",
+    "age",
+    "anatom_site_general_challenge"
+  ],
+  "subgroup_threshold": 0.5,
+  "small_positive_caution_threshold": 10,
+  "gradcam": {
+    "target_layer": "features.7.2",
+    "gradient_target": "raw_melanoma_logit",
+    "metadata_included_during_forward": true,
+    "activation_shape": [
+      1,
+      768,
+      7,
+      7
+    ],
+    "gradient_shape": [
+      1,
+      768,
+      7,
+      7
+    ],
+    "cases_per_category": 3,
+    "case_list": [
+      "ISIC_2979268",
+      "ISIC_7763042",
+      "ISIC_1159891",
+      "ISIC_7433711",
+      "ISIC_3875647",
+      "ISIC_3238159",
+      "ISIC_1698942",
+      "ISIC_6089318",
+      "ISIC_2221217",
+      "ISIC_6931712",
+      "ISIC_1258435",
+      "ISIC_8661536"
+    ],
+    "all_cams_finite": true,
+    "all_cams_nontrivial": true,
+    "hooks_closed_after_generation": true
+  },
+  "bootstrap": {
+    "performed": true,
+    "method": "paired patient-level cluster bootstrap",
+    "requested_iterations": 1000,
+    "valid_iterations": 1000,
+    "skipped_iterations": 0,
+    "seed": 42,
+    "M2_minus_M1_roc_auc": {
+      "observed": -0.0034023921120696077,
+      "bootstrap_median": -0.003234083062202908,
+      "percentile_95": [
+        -0.02040776161175055,
+        0.013015312906483896
+      ]
+    },
+    "M2_minus_M1_average_precision": {
+      "observed": -0.00411401285258195,
+      "bootstrap_median": -0.006694600265019543,
+      "percentile_95": [
+        -0.051607871708653365,
+        0.03081537532696846
+      ]
+    },
+    "M2_minus_M1_sensitivity_at_0_5": {
+      "observed": -0.07692307692307687,
+      "bootstrap_median": -0.07526881720430112,
+      "percentile_95": [
+        -0.1395465116279069,
+        -0.02607037582903461
+      ]
+    }
+  },
+  "generated_outputs": {
+    "threshold": [
+      "outputs/analysis/threshold/M1_threshold_analysis.csv",
+      "outputs/analysis/threshold/M2_threshold_analysis.csv",
+      "outputs/figures/I_threshold_tradeoffs.png"
+    ],
+    "failures_and_disagreements": [
+      "outputs/analysis/failures/M2_failure_cases.csv",
+      "outputs/analysis/failures/M2_failure_review.csv",
+      "outputs/analysis/failures/M1_M2_disagreements.csv",
+      "outputs/analysis/failures/M1_M2_disagreement_summary.json",
+      "outputs/figures/I_failure_cases.png"
+    ],
+    "subgroups": [
+      "outputs/analysis/subgroups/M1_subgroup_metrics.csv",
+      "outputs/analysis/subgroups/M2_subgroup_metrics.csv",
+      "outputs/analysis/subgroups/M1_M2_subgroup_comparison.csv",
+      "outputs/figures/I_subgroup_performance.png"
+    ],
+    "gradcam": [
+      "outputs/analysis/gradcam/M2_gradcam_summary.json",
+      "outputs/figures/I_gradcam.png"
+    ],
+    "bootstrap": [
+      "outputs/analysis/bootstrap/M1_M2_bootstrap_samples.csv",
+      "outputs/analysis/bootstrap/M1_M2_bootstrap_summary.json",
+      "outputs/figures/I_bootstrap_differences.png"
+    ],
+    "documentation": [
+      "report/analysis_notes.md",
+      "viva_notes.md"
+    ]
+  }
+}

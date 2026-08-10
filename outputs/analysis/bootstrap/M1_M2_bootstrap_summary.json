@@ -1,0 +1,33 @@
+{
+  "method": "paired_patient_level_cluster_bootstrap",
+  "seed": 42,
+  "requested_iterations": 1000,
+  "valid_iterations": 1000,
+  "skipped_iterations": 0,
+  "metrics": {
+    "roc_auc_difference_m2_minus_m1": {
+      "observed_difference": -0.0034023921120696077,
+      "bootstrap_median_difference": -0.003234083062202908,
+      "percentile_2_5": -0.02040776161175055,
+      "percentile_97_5": 0.013015312906483896,
+      "valid_iterations": 1000,
+      "skipped_iterations": 0
+    },
+    "average_precision_difference_m2_minus_m1": {
+      "observed_difference": -0.00411401285258195,
+      "bootstrap_median_difference": -0.006694600265019543,
+      "percentile_2_5": -0.051607871708653365,
+      "percentile_97_5": 0.03081537532696846,
+      "valid_iterations": 1000,
+      "skipped_iterations": 0
+    },
+    "sensitivity_difference_m2_minus_m1": {
+      "observed_difference": -0.07692307692307687,
+      "bootstrap_median_difference": -0.07526881720430112,
+      "percentile_2_5": -0.1395465116279069,
+      "percentile_97_5": -0.02607037582903461,
+      "valid_iterations": 1000,
+      "skipped_iterations": 0
+    }
+  }
+}

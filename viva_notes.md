@@ -505,3 +505,227 @@ The loss expects raw logits, so adding sigmoid inside the model
 would duplicate that operation and reduce numerical stability.
 Sigmoid is applied only when probabilities are needed during
 validation or prediction.
+
+---
+
+## 12. Behaviour, reliability, and explainability (Phase I)
+
+### What is threshold analysis?
+
+Threshold analysis recalculates binary predictions and their confusion-matrix
+metrics at several fixed probability cutoffs. Phase I used the predeclared grid
+0.10 to 0.90 in steps of 0.10; it did not search for an optimum.
+
+### Why do sensitivity and specificity change with the threshold?
+
+Raising the threshold makes positive predictions harder. Predicted positives,
+TP, and FP cannot increase, so sensitivity generally falls and specificity
+generally rises. Lowering it has the opposite effect. Tied probabilities can
+produce equal adjacent values.
+
+### Why do ROC-AUC and Average Precision not depend on one fixed threshold?
+
+ROC-AUC summarizes the ordering of positive versus negative scores across all
+thresholds. Average Precision summarizes the precision-recall ranking curve.
+Neither first converts probabilities to labels at one cutoff, unlike
+sensitivity, specificity, precision, F1, balanced accuracy, and accuracy.
+
+### Why can ranking metrics and threshold-0.5 metrics tell different stories?
+
+M1 had slightly higher ROC-AUC and AP, but M2 had higher specificity,
+precision, F1, balanced accuracy, and accuracy at 0.5. Ranking quality and the
+location of one operating point are different properties, so this is not a
+contradiction.
+
+### Why is accuracy misleading for severe imbalance?
+
+Only 117 of 6,627 validation images were malignant. A classifier can obtain
+high accuracy by predicting mostly benign cases while missing clinically
+important positives. Balanced accuracy, sensitivity, specificity, precision,
+F1, ROC-AUC, and AP expose complementary behaviour.
+
+### Why was 0.5 kept as the primary comparison threshold?
+
+It was the frozen threshold used for every authoritative model result, so it
+preserves comparability. Phase I describes behaviour around it without changing
+the core experiment.
+
+### Why not optimize a threshold on Fold 0 and report it as final?
+
+Selecting and reporting a threshold on the same fold would adapt the operating
+point to validation noise and overstate generalization. A clinical threshold
+would also require explicit cost criteria and independent validation.
+
+### What happened across the Phase I threshold grid?
+
+M2 predicted fewer positives, had higher specificity, and had lower sensitivity
+than M1 at every equal threshold. At 0.5, M1 sensitivity/specificity were
+0.974/0.628 and M2 values were 0.897/0.736. At similar sensitivity, M1 could
+retain more specificity; at similar specificity, M2 could retain more
+sensitivity. No new final threshold was selected.
+
+### What are TP, TN, FP, and FN?
+
+A TP is a malignant image predicted malignant; a TN is benign predicted
+benign. An FP is benign predicted malignant, and an FN is malignant predicted
+benign. At 0.5, M2 had TP=105, TN=4791, FP=1719, and FN=12.
+
+### Why do false negatives and false positives matter?
+
+An FN is a missed melanoma in this binary task and is therefore safety-relevant.
+An FP is a benign image flagged as melanoma and can represent unnecessary
+follow-up or workload. This project measures algorithmic errors only and does
+not establish clinical consequences.
+
+### How were high-confidence cases selected?
+
+Selection was deterministic. The six FNs with the lowest M2 melanoma
+probabilities and six FPs with the highest probabilities were chosen. The six
+highest-probability TPs and six lowest-probability TNs supplied comparison
+cases. All 24 original JPEGs were inspected.
+
+### Why inspect correct predictions as well as FP and FN cases?
+
+Artifacts in failures are not informative if the same artifacts also occur in
+correct predictions. Here hair, markers, low contrast, and blur occurred in
+both groups, which prevents a causal failure claim from this small sample.
+
+### What did the visual review find?
+
+Four of six selected FNs showed hair and four showed low contrast. Three of six
+FPs showed hair, three markers, two illumination/colour issues, and two low
+contrast. All six TNs showed hair. Two FN filenames were byte-identical images
+from the same patient. These observations describe 24 extreme cases only.
+
+### What is M1/M2 disagreement analysis?
+
+It joins saved predictions by image name and records how each binary prediction
+changed. There were 826 M1-FP to M2-TN changes and 121 M1-TN to M2-FP changes,
+giving 705 fewer FPs in M2. Nine M1 TPs became M2 FNs and no M1 FN became an M2
+TP, giving nine additional FNs.
+
+### Why cannot metadata be said to have caused an individual change?
+
+M1 and M2 were trained independently from ImageNet initialization. Their
+parameters, optimization paths, and output score distributions therefore
+differ beyond the presence of metadata. The defensible statement is that the
+M2 prediction changed relative to M1, not that a metadata value caused it.
+
+### What is subgroup analysis?
+
+It computes the same metrics separately for metadata-defined subsets to look
+for heterogeneous observed behaviour. Phase I compared M1 and M2 by sex, age
+bands `<40`, `40-59`, `60+`, and raw anatomical site at threshold 0.5.
+
+### Why report both N and melanoma count?
+
+N describes total subgroup support, but sensitivity, ROC-AUC, and AP depend
+strongly on the number of positives. A large mostly benign group can still
+have too few melanomas for stable positive-class estimates.
+
+### Why does one poor subgroup estimate not prove bias?
+
+Point estimates vary with sampling, prevalence, and case difficulty. The
+oral/genital, palms/soles, and unknown-site groups had only 3, 1, and 1
+positives. Their metrics are flagged and cannot support fairness or bias claims.
+
+### What subgroup differences were observed?
+
+M2 specificity exceeded M1 in every reported subgroup, while M2 sensitivity
+was lower for both sexes and all age bands. The largest age-band sensitivity
+change was -0.176 for `<40` with 17 positives. Site sensitivity was unchanged
+for head/neck and lower extremity but lower for torso (-0.093) and upper
+extremity (-0.174). These are within-fold descriptive differences.
+
+### What is Grad-CAM?
+
+Grad-CAM is a post-hoc spatial attribution method. It shows image regions whose
+feature activations contribute positively to a selected output, at the coarse
+resolution of a convolutional feature map.
+
+### How are Grad-CAM activation maps and gradients combined?
+
+The forward hook stores the target layer's feature maps. Backpropagation of the
+raw melanoma logit supplies gradients for those maps. Global averaging over
+the gradient height and width gives one weight per channel. The weighted sum
+of activation channels is passed through ReLU, normalized to [0,1], and resized
+for the overlay.
+
+### What was the M2 target layer?
+
+The implementation dynamically verified `features.7.2`, the final spatial
+ConvNeXt block before pooling. Activations and gradients had shape
+`[1, 768, 7, 7]`, so the source map was spatial rather than a pooled vector.
+
+### Why use the raw melanoma logit?
+
+The raw logit is the direct scalar model output before sigmoid compression or
+binary thresholding. Its gradient is clearer for attribution and avoids the
+small gradients that sigmoid can produce for very confident predictions.
+
+### Why is metadata still required during M2 Grad-CAM?
+
+M2's output is computed jointly from image and metadata branches, so a valid
+forward pass requires the exact metadata vector. Phase I reused the saved Phase
+H preprocessor without refitting it. The resulting image attribution is
+conditioned on that metadata input.
+
+### Why does Grad-CAM not explain the metadata branch?
+
+The hook is attached to a spatial image feature layer. It can map image-branch
+contributions back to pixels, but the metadata MLP has no image coordinates.
+Explaining metadata would require a separate tabular attribution analysis.
+
+### What did the Grad-CAM review suggest?
+
+TP maps generally covered visible lesion regions. FP maps broadly emphasized
+central heterogeneous or erythematous fields. Two FN maps still concentrated
+on the lesion despite low output scores; another split attribution between a
+diffuse lesion and an edge region. TN positive-logit maps often emphasized
+peripheral, hair-covered, or edge areas more than the central lesion.
+
+### Why does Grad-CAM not prove causality or clinical reasoning?
+
+It is a coarse gradient-based sensitivity visualization for one trained model.
+It can be affected by layer choice, normalization, correlations, and resolution.
+It does not show a counterfactual cause, explain the full fusion network, or
+demonstrate dermatologist-like reasoning.
+
+### What is bootstrap resampling?
+
+Bootstrap resampling repeatedly draws units with replacement from the observed
+validation set and recalculates a statistic. The resulting empirical
+distribution describes sampling variability under that resampling design.
+
+### Why resample patients rather than independent images?
+
+One patient may contribute several correlated images. Sampling patient clusters
+and retaining all their images better preserves this dependence than pretending
+every image is independent.
+
+### Why use paired bootstrap samples for M1 and M2?
+
+Both models evaluated the same Fold 0 cases. Applying the same sampled patients
+to both models preserves pairing, so each M2-M1 difference reflects matched
+resampled data rather than two unrelated samples.
+
+### What does a percentile interval mean here?
+
+The 2.5th and 97.5th percentiles bound the middle 95% of bootstrap differences.
+For M2-M1, ROC-AUC was -0.0034 with interval [-0.0204, 0.0130], and AP was
+-0.0041 with interval [-0.0516, 0.0308]. Both span zero, indicating that the
+small observed ranking differences are small relative to bootstrap variability.
+
+### What did the sensitivity bootstrap show?
+
+At threshold 0.5, the observed M2-M1 sensitivity difference was -0.0769 and the
+95% percentile interval was [-0.1395, -0.0261]. This describes lower M2
+sensitivity within the internal validation resampling design; it is not a claim
+of clinical or external statistical superiority.
+
+### Why is bootstrap uncertainty not external validation?
+
+Every resample is made from the same permanent Fold 0 patients and inherits its
+dataset, acquisition, and selection properties. Bootstrap can characterize
+internal sampling variability, but it cannot test generalization to a new
+hospital, population, device, or time period.

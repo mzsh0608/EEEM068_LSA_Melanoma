@@ -1,0 +1,237 @@
+{
+  "rows": 6627,
+  "transition_counts": {
+    "M1_NEG_TO_M2_NEG": 3968,
+    "M1_POS_TO_M2_POS": 1703,
+    "M1_POS_TO_M2_NEG": 835,
+    "M1_NEG_TO_M2_POS": 121
+  },
+  "confusion_transition_counts": {
+    "M1_TN_TO_M2_TN": 3965,
+    "M1_FP_TO_M2_FP": 1598,
+    "M1_FP_TO_M2_TN": 826,
+    "M1_TN_TO_M2_FP": 121,
+    "M1_TP_TO_M2_TP": 105,
+    "M1_TP_TO_M2_FN": 9,
+    "M1_FN_TO_M2_FN": 3
+  },
+  "transition_counts_by_target": {
+    "0": {
+      "M1_NEG_TO_M2_NEG": 3965,
+      "M1_POS_TO_M2_POS": 1598,
+      "M1_POS_TO_M2_NEG": 826,
+      "M1_NEG_TO_M2_POS": 121
+    },
+    "1": {
+      "M1_POS_TO_M2_POS": 105,
+      "M1_POS_TO_M2_NEG": 9,
+      "M1_NEG_TO_M2_NEG": 3
+    }
+  },
+  "mean_probability_delta": -0.07259902047261163,
+  "median_probability_delta": 0.0007305925246328003,
+  "largest_positive_probability_changes": [
+    {
+      "image_name": "ISIC_0691329",
+      "patient_id": "IP_7842255",
+      "target": 0,
+      "m1_probability": 0.0126831131,
+      "m2_probability": 0.7420611978,
+      "probability_delta": 0.7293780847,
+      "transition_category": "M1_NEG_TO_M2_POS",
+      "confusion_transition": "M1_TN_TO_M2_FP"
+    },
+    {
+      "image_name": "ISIC_5323944",
+      "patient_id": "IP_7824066",
+      "target": 0,
+      "m1_probability": 0.0114010749,
+      "m2_probability": 0.6635030508,
+      "probability_delta": 0.6521019759,
+      "transition_category": "M1_NEG_TO_M2_POS",
+      "confusion_transition": "M1_TN_TO_M2_FP"
+    },
+    {
+      "image_name": "ISIC_5558141",
+      "patient_id": "IP_9755685",
+      "target": 0,
+      "m1_probability": 0.0091177709,
+      "m2_probability": 0.6528323293,
+      "probability_delta": 0.6437145583,
+      "transition_category": "M1_NEG_TO_M2_POS",
+      "confusion_transition": "M1_TN_TO_M2_FP"
+    },
+    {
+      "image_name": "ISIC_3948221",
+      "patient_id": "IP_1564049",
+      "target": 0,
+      "m1_probability": 0.1125201285,
+      "m2_probability": 0.7399693727,
+      "probability_delta": 0.6274492443,
+      "transition_category": "M1_NEG_TO_M2_POS",
+      "confusion_transition": "M1_TN_TO_M2_FP"
+    },
+    {
+      "image_name": "ISIC_2470542",
+      "patient_id": "IP_2005898",
+      "target": 0,
+      "m1_probability": 0.0287651569,
+      "m2_probability": 0.6490764618,
+      "probability_delta": 0.6203113049,
+      "transition_category": "M1_NEG_TO_M2_POS",
+      "confusion_transition": "M1_TN_TO_M2_FP"
+    },
+    {
+      "image_name": "ISIC_3260211",
+      "patient_id": "IP_7335423",
+      "target": 0,
+      "m1_probability": 0.0201836787,
+      "m2_probability": 0.5931726694,
+      "probability_delta": 0.5729889907,
+      "transition_category": "M1_NEG_TO_M2_POS",
+      "confusion_transition": "M1_TN_TO_M2_FP"
+    },
+    {
+      "image_name": "ISIC_7921944",
+      "patient_id": "IP_3620175",
+      "target": 0,
+      "m1_probability": 0.1828814596,
+      "m2_probability": 0.7465125918,
+      "probability_delta": 0.5636311322,
+      "transition_category": "M1_NEG_TO_M2_POS",
+      "confusion_transition": "M1_TN_TO_M2_FP"
+    },
+    {
+      "image_name": "ISIC_6458558",
+      "patient_id": "IP_2426108",
+      "target": 0,
+      "m1_probability": 0.0330281742,
+      "m2_probability": 0.5912694335,
+      "probability_delta": 0.5582412593,
+      "transition_category": "M1_NEG_TO_M2_POS",
+      "confusion_transition": "M1_TN_TO_M2_FP"
+    },
+    {
+      "image_name": "ISIC_8769415",
+      "patient_id": "IP_2606884",
+      "target": 0,
+      "m1_probability": 0.0193168316,
+      "m2_probability": 0.572119832,
+      "probability_delta": 0.5528030004,
+      "transition_category": "M1_NEG_TO_M2_POS",
+      "confusion_transition": "M1_TN_TO_M2_FP"
+    },
+    {
+      "image_name": "ISIC_8017882",
+      "patient_id": "IP_8661408",
+      "target": 0,
+      "m1_probability": 0.2785343528,
+      "m2_probability": 0.8303685188,
+      "probability_delta": 0.551834166,
+      "transition_category": "M1_NEG_TO_M2_POS",
+      "confusion_transition": "M1_TN_TO_M2_FP"
+    }
+  ],
+  "largest_negative_probability_changes": [
+    {
+      "image_name": "ISIC_7653664",
+      "patient_id": "IP_4702665",
+      "target": 0,
+      "m1_probability": 0.8664927483,
+      "m2_probability": 0.0412506349,
+      "probability_delta": -0.8252421133,
+      "transition_category": "M1_POS_TO_M2_NEG",
+      "confusion_transition": "M1_FP_TO_M2_TN"
+    },
+    {
+      "image_name": "ISIC_1166920",
+      "patient_id": "IP_4938349",
+      "target": 0,
+      "m1_probability": 0.8292396069,
+      "m2_probability": 0.0154229952,
+      "probability_delta": -0.8138166117,
+      "transition_category": "M1_POS_TO_M2_NEG",
+      "confusion_transition": "M1_FP_TO_M2_TN"
+    },
+    {
+      "image_name": "ISIC_0163812",
+      "patient_id": "IP_6512345",
+      "target": 0,
+      "m1_probability": 0.8348519802,
+      "m2_probability": 0.0211408548,
+      "probability_delta": -0.8137111254,
+      "transition_category": "M1_POS_TO_M2_NEG",
+      "confusion_transition": "M1_FP_TO_M2_TN"
+    },
+    {
+      "image_name": "ISIC_3113485",
+      "patient_id": "IP_6242332",
+      "target": 0,
+      "m1_probability": 0.7909324765,
+      "m2_probability": 0.0038663687,
+      "probability_delta": -0.7870661078,
+      "transition_category": "M1_POS_TO_M2_NEG",
+      "confusion_transition": "M1_FP_TO_M2_TN"
+    },
+    {
+      "image_name": "ISIC_4680528",
+      "patient_id": "IP_7207550",
+      "target": 0,
+      "m1_probability": 0.7863947153,
+      "m2_probability": 0.0097076287,
+      "probability_delta": -0.7766870866,
+      "transition_category": "M1_POS_TO_M2_NEG",
+      "confusion_transition": "M1_FP_TO_M2_TN"
+    },
+    {
+      "image_name": "ISIC_7753753",
+      "patient_id": "IP_6245507",
+      "target": 0,
+      "m1_probability": 0.7699919939,
+      "m2_probability": 0.0038511152,
+      "probability_delta": -0.7661408787,
+      "transition_category": "M1_POS_TO_M2_NEG",
+      "confusion_transition": "M1_FP_TO_M2_TN"
+    },
+    {
+      "image_name": "ISIC_7036741",
+      "patient_id": "IP_6512345",
+      "target": 0,
+      "m1_probability": 0.7954461575,
+      "m2_probability": 0.0308449492,
+      "probability_delta": -0.7646012083,
+      "transition_category": "M1_POS_TO_M2_NEG",
+      "confusion_transition": "M1_FP_TO_M2_TN"
+    },
+    {
+      "image_name": "ISIC_3858314",
+      "patient_id": "IP_8547782",
+      "target": 0,
+      "m1_probability": 0.7651841044,
+      "m2_probability": 0.0093476065,
+      "probability_delta": -0.755836498,
+      "transition_category": "M1_POS_TO_M2_NEG",
+      "confusion_transition": "M1_FP_TO_M2_TN"
+    },
+    {
+      "image_name": "ISIC_2779797",
+      "patient_id": "IP_2214113",
+      "target": 0,
+      "m1_probability": 0.7855449319,
+      "m2_probability": 0.0345774703,
+      "probability_delta": -0.7509674616,
+      "transition_category": "M1_POS_TO_M2_NEG",
+      "confusion_transition": "M1_FP_TO_M2_TN"
+    },
+    {
+      "image_name": "ISIC_4985037",
+      "patient_id": "IP_3054890",
+      "target": 0,
+      "m1_probability": 0.7332673073,
+      "m2_probability": 0.0029897883,
+      "probability_delta": -0.730277519,
+      "transition_category": "M1_POS_TO_M2_NEG",
+      "confusion_transition": "M1_FP_TO_M2_TN"
+    }
+  ]
+}

@@ -1,0 +1,339 @@
+{
+  "checkpoint": "outputs\\checkpoints\\M2_convnext_metadata_best.pt",
+  "checkpoint_epoch": 8,
+  "metadata_preprocessor": "logs\\M2_convnext_metadata\\metadata_preprocessor.joblib",
+  "metadata_preprocessor_refitted": false,
+  "metadata_included_during_forward": true,
+  "target_layer": "features.7.2",
+  "gradient_target": "raw_melanoma_logit",
+  "cases_per_category": 3,
+  "case_count": 12,
+  "hooks_closed_after_generation": true,
+  "cases": [
+    {
+      "category": "FN",
+      "image_name": "ISIC_2979268",
+      "saved_probability": 0.0049649765715003,
+      "forward_probability": 0.004964946303516626,
+      "activation_shape": [
+        1,
+        768,
+        7,
+        7
+      ],
+      "gradient_shape": [
+        1,
+        768,
+        7,
+        7
+      ],
+      "cam_shape": [
+        512,
+        512
+      ],
+      "cam_min": 0.0,
+      "cam_max": 0.9932373762130737,
+      "cam_standard_deviation": 0.14561055600643158,
+      "cam_finite": true,
+      "cam_nontrivial": true
+    },
+    {
+      "category": "FN",
+      "image_name": "ISIC_7763042",
+      "saved_probability": 0.0086265224963426,
+      "forward_probability": 0.008626433089375496,
+      "activation_shape": [
+        1,
+        768,
+        7,
+        7
+      ],
+      "gradient_shape": [
+        1,
+        768,
+        7,
+        7
+      ],
+      "cam_shape": [
+        512,
+        512
+      ],
+      "cam_min": 0.0,
+      "cam_max": 1.0,
+      "cam_standard_deviation": 0.16888661682605743,
+      "cam_finite": true,
+      "cam_nontrivial": true
+    },
+    {
+      "category": "FN",
+      "image_name": "ISIC_1159891",
+      "saved_probability": 0.0625335499644279,
+      "forward_probability": 0.06253388524055481,
+      "activation_shape": [
+        1,
+        768,
+        7,
+        7
+      ],
+      "gradient_shape": [
+        1,
+        768,
+        7,
+        7
+      ],
+      "cam_shape": [
+        512,
+        512
+      ],
+      "cam_min": 0.0,
+      "cam_max": 0.9935872554779053,
+      "cam_standard_deviation": 0.22850576043128967,
+      "cam_finite": true,
+      "cam_nontrivial": true
+    },
+    {
+      "category": "FP",
+      "image_name": "ISIC_7433711",
+      "saved_probability": 0.9775258898735046,
+      "forward_probability": 0.9775260090827942,
+      "activation_shape": [
+        1,
+        768,
+        7,
+        7
+      ],
+      "gradient_shape": [
+        1,
+        768,
+        7,
+        7
+      ],
+      "cam_shape": [
+        512,
+        512
+      ],
+      "cam_min": 0.0,
+      "cam_max": 0.9991061091423035,
+      "cam_standard_deviation": 0.26957398653030396,
+      "cam_finite": true,
+      "cam_nontrivial": true
+    },
+    {
+      "category": "FP",
+      "image_name": "ISIC_3875647",
+      "saved_probability": 0.9772409796714784,
+      "forward_probability": 0.9772409796714783,
+      "activation_shape": [
+        1,
+        768,
+        7,
+        7
+      ],
+      "gradient_shape": [
+        1,
+        768,
+        7,
+        7
+      ],
+      "cam_shape": [
+        512,
+        512
+      ],
+      "cam_min": 0.0,
+      "cam_max": 0.997000515460968,
+      "cam_standard_deviation": 0.24169853329658508,
+      "cam_finite": true,
+      "cam_nontrivial": true
+    },
+    {
+      "category": "FP",
+      "image_name": "ISIC_3238159",
+      "saved_probability": 0.9759120345115662,
+      "forward_probability": 0.9759121537208557,
+      "activation_shape": [
+        1,
+        768,
+        7,
+        7
+      ],
+      "gradient_shape": [
+        1,
+        768,
+        7,
+        7
+      ],
+      "cam_shape": [
+        512,
+        512
+      ],
+      "cam_min": 0.0,
+      "cam_max": 0.9964423775672913,
+      "cam_standard_deviation": 0.30768296122550964,
+      "cam_finite": true,
+      "cam_nontrivial": true
+    },
+    {
+      "category": "TP",
+      "image_name": "ISIC_1698942",
+      "saved_probability": 0.9795469641685486,
+      "forward_probability": 0.9795470833778381,
+      "activation_shape": [
+        1,
+        768,
+        7,
+        7
+      ],
+      "gradient_shape": [
+        1,
+        768,
+        7,
+        7
+      ],
+      "cam_shape": [
+        512,
+        512
+      ],
+      "cam_min": 0.0,
+      "cam_max": 0.9998045563697815,
+      "cam_standard_deviation": 0.29436615109443665,
+      "cam_finite": true,
+      "cam_nontrivial": true
+    },
+    {
+      "category": "TP",
+      "image_name": "ISIC_6089318",
+      "saved_probability": 0.979473888874054,
+      "forward_probability": 0.979473888874054,
+      "activation_shape": [
+        1,
+        768,
+        7,
+        7
+      ],
+      "gradient_shape": [
+        1,
+        768,
+        7,
+        7
+      ],
+      "cam_shape": [
+        512,
+        512
+      ],
+      "cam_min": 0.0,
+      "cam_max": 0.997905433177948,
+      "cam_standard_deviation": 0.27041828632354736,
+      "cam_finite": true,
+      "cam_nontrivial": true
+    },
+    {
+      "category": "TP",
+      "image_name": "ISIC_2221217",
+      "saved_probability": 0.9711751341819764,
+      "forward_probability": 0.9711751341819763,
+      "activation_shape": [
+        1,
+        768,
+        7,
+        7
+      ],
+      "gradient_shape": [
+        1,
+        768,
+        7,
+        7
+      ],
+      "cam_shape": [
+        512,
+        512
+      ],
+      "cam_min": 0.0,
+      "cam_max": 0.9994860291481018,
+      "cam_standard_deviation": 0.3038000762462616,
+      "cam_finite": true,
+      "cam_nontrivial": true
+    },
+    {
+      "category": "TN",
+      "image_name": "ISIC_6931712",
+      "saved_probability": 0.0017585593741387,
+      "forward_probability": 0.00175855599809438,
+      "activation_shape": [
+        1,
+        768,
+        7,
+        7
+      ],
+      "gradient_shape": [
+        1,
+        768,
+        7,
+        7
+      ],
+      "cam_shape": [
+        512,
+        512
+      ],
+      "cam_min": 0.0,
+      "cam_max": 0.997052013874054,
+      "cam_standard_deviation": 0.24175935983657837,
+      "cam_finite": true,
+      "cam_nontrivial": true
+    },
+    {
+      "category": "TN",
+      "image_name": "ISIC_1258435",
+      "saved_probability": 0.0017800006316974,
+      "forward_probability": 0.0017799988854676485,
+      "activation_shape": [
+        1,
+        768,
+        7,
+        7
+      ],
+      "gradient_shape": [
+        1,
+        768,
+        7,
+        7
+      ],
+      "cam_shape": [
+        512,
+        512
+      ],
+      "cam_min": 0.0,
+      "cam_max": 0.9976799488067627,
+      "cam_standard_deviation": 0.23449313640594482,
+      "cam_finite": true,
+      "cam_nontrivial": true
+    },
+    {
+      "category": "TN",
+      "image_name": "ISIC_8661536",
+      "saved_probability": 0.0018513774266466,
+      "forward_probability": 0.0018513791728764772,
+      "activation_shape": [
+        1,
+        768,
+        7,
+        7
+      ],
+      "gradient_shape": [
+        1,
+        768,
+        7,
+        7
+      ],
+      "cam_shape": [
+        512,
+        512
+      ],
+      "cam_min": 0.0,
+      "cam_max": 0.9970703125,
+      "cam_standard_deviation": 0.1043611541390419,
+      "cam_finite": true,
+      "cam_nontrivial": true
+    }
+  ],
+  "figure": "outputs\\figures\\I_gradcam.png"
+}
