@@ -1,0 +1,134 @@
+{
+  "configured": {
+    "experiment_id": "M1",
+    "experiment_name": "convnext_image",
+    "seed": 42,
+    "validation_fold": 0,
+    "model": {
+      "architecture": "convnext_tiny",
+      "pretrained": true,
+      "weights": "IMAGENET1K_V1",
+      "use_metadata": false,
+      "fine_tune_all": true,
+      "num_outputs": 1
+    },
+    "data": {
+      "image_size": 224,
+      "batch_size": 32,
+      "num_workers": 4,
+      "pin_memory": true,
+      "persistent_workers": true,
+      "drop_last": false,
+      "train_shuffle": true
+    },
+    "transforms": {
+      "resize_interpolation": "bilinear",
+      "horizontal_flip_probability": 0.5,
+      "vertical_flip_probability": 0.5,
+      "rotation_degrees": 15,
+      "brightness": 0.1,
+      "contrast": 0.1,
+      "normalization_mean": [
+        0.485,
+        0.456,
+        0.406
+      ],
+      "normalization_std": [
+        0.229,
+        0.224,
+        0.225
+      ]
+    },
+    "training": {
+      "epochs": 10,
+      "optimizer": "adamw",
+      "learning_rate": 0.0001,
+      "weight_decay": 0.0001,
+      "loss": "weighted_bce",
+      "scheduler": "none",
+      "amp": true,
+      "early_stopping": {
+        "enabled": true,
+        "patience": 3
+      }
+    },
+    "evaluation": {
+      "threshold": 0.5,
+      "checkpoint_metric": "roc_auc",
+      "checkpoint_mode": "max"
+    },
+    "outputs": {
+      "experiment_directory": "logs/M1_convnext_image",
+      "checkpoint": "outputs/checkpoints/M1_convnext_image_best.pt",
+      "predictions": "outputs/predictions/M1_convnext_image.csv",
+      "training_history": "logs/M1_convnext_image/history.csv",
+      "metrics": "logs/M1_convnext_image/metrics.json",
+      "environment": "logs/M1_convnext_image/environment.json",
+      "training_log": "logs/M1_convnext_image/training.log",
+      "training_curves": "outputs/figures/M1_training_curves.png",
+      "confusion_matrix": "outputs/figures/M1_confusion_matrix.png",
+      "roc_pr_curve": "outputs/figures/M1_roc_pr.png"
+    }
+  },
+  "resolved": {
+    "experiment_id": "M1",
+    "experiment_name": "convnext_image",
+    "architecture": "convnext_tiny",
+    "weights": "IMAGENET1K_V1",
+    "fine_tune_all": true,
+    "total_parameters": 27820897,
+    "trainable_parameters": 27820897,
+    "seed": 42,
+    "validation_fold": 0,
+    "train_samples": 26499,
+    "validation_samples": 6627,
+    "train_negative": 26032,
+    "train_positive": 467,
+    "validation_negative": 6510,
+    "validation_positive": 117,
+    "patient_overlap": 0,
+    "pos_weight": 55.74304068522484,
+    "image_size": 224,
+    "batch_size": 32,
+    "num_workers": 4,
+    "persistent_workers": true,
+    "optimizer": "adamw",
+    "learning_rate": 0.0001,
+    "weight_decay": 0.0001,
+    "loss": "weighted_bce",
+    "amp_requested": true,
+    "amp_active": true,
+    "max_epochs": 10,
+    "early_stopping_enabled": true,
+    "early_stopping_patience": 3,
+    "threshold": 0.5,
+    "checkpoint_metric": "roc_auc",
+    "checkpoint_mode": "max",
+    "preprocessing": {
+      "color_mode": "RGB",
+      "resize": [
+        224,
+        224
+      ],
+      "resize_interpolation": "bilinear",
+      "normalization_mean": [
+        0.485,
+        0.456,
+        0.406
+      ],
+      "normalization_std": [
+        0.229,
+        0.224,
+        0.225
+      ],
+      "validation_augmentation": null
+    },
+    "training_augmentation": {
+      "horizontal_flip_probability": 0.5,
+      "vertical_flip_probability": 0.5,
+      "rotation_degrees": 15,
+      "brightness": 0.1,
+      "contrast": 0.1
+    }
+  }
+}

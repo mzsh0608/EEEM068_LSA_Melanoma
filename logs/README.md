@@ -15,5 +15,5 @@ Each neural network experiment will store:
 | H0 | Unweighted Logistic Regression | Complete |
 | H1 | Class-weighted Logistic Regression | Complete |
 | B0 | ResNet18 + weighted BCE | Complete |
-| M1 | ConvNeXt-Tiny image-only | Pending |
+| M1 | ConvNeXt-Tiny image-only | Complete |
 | M2 | ConvNeXt-Tiny + metadata | Pending |

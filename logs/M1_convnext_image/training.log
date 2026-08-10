@@ -1,0 +1,22 @@
+start_timestamp=2026-08-10T06:26:44.410592+00:00
+git_commit=5b92a4dddb1892e62d479733dcbd6135c29a1d81
+experiment_id=M1
+device=cuda
+gpu_name=NVIDIA GeForce RTX 3080 Laptop GPU
+data_counts=train:26499 validation:6627 train_negative:26032 train_positive:467 validation_negative:6510 validation_positive:117
+pos_weight=55.74304068522484
+configuration=architecture:convnext_tiny weights:IMAGENET1K_V1 batch_size:32 num_workers:4 optimizer:adamw learning_rate:0.0001 weight_decay:0.0001 amp_active:True max_epochs:10 patience:3 total_parameters:27820897 trainable_parameters:27820897
+epoch=1 train_loss=1.11631440 val_loss=0.94429396 roc_auc=0.85581485 seconds=158.06
+epoch=2 train_loss=0.98489326 val_loss=0.98834656 roc_auc=0.85759844 seconds=98.71
+epoch=3 train_loss=0.90653266 val_loss=0.84353598 roc_auc=0.87739441 seconds=98.84
+epoch=4 train_loss=0.85531418 val_loss=0.80098498 roc_auc=0.90084814 seconds=98.95
+epoch=5 train_loss=0.84598346 val_loss=0.98046587 roc_auc=0.89240485 seconds=98.87
+epoch=6 train_loss=0.77662049 val_loss=0.85640773 roc_auc=0.89123374 seconds=99.00
+epoch=7 train_loss=0.88438973 val_loss=0.80662697 roc_auc=0.89212914 seconds=99.28
+best_epoch=4 best_metric=0.90084814
+early_stopping_triggered=True
+actual_epochs=7 total_seconds=767.50
+end_timestamp=2026-08-10T06:39:32.037813+00:00
+artifacts=checkpoint:C:\Users\test\Documents\EEEM068_LSA_Melanoma\outputs\checkpoints\M1_convnext_image_best.pt predictions:C:\Users\test\Documents\EEEM068_LSA_Melanoma\outputs\predictions\M1_convnext_image.csv metrics:C:\Users\test\Documents\EEEM068_LSA_Melanoma\logs\M1_convnext_image\metrics.json history:C:\Users\test\Documents\EEEM068_LSA_Melanoma\logs\M1_convnext_image\history.csv
+warnings=none
+generated_artifacts=config:C:\Users\test\Documents\EEEM068_LSA_Melanoma\logs\M1_convnext_image\config.json environment:C:\Users\test\Documents\EEEM068_LSA_Melanoma\logs\M1_convnext_image\environment.json training_curves:C:\Users\test\Documents\EEEM068_LSA_Melanoma\outputs\figures\M1_training_curves.png confusion_matrix:C:\Users\test\Documents\EEEM068_LSA_Melanoma\outputs\figures\M1_confusion_matrix.png roc_pr_curve:C:\Users\test\Documents\EEEM068_LSA_Melanoma\outputs\figures\M1_roc_pr.png

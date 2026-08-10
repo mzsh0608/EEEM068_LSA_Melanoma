@@ -147,10 +147,59 @@ new classifier to lesion images.
 
 ## 6. ConvNeXt
 
-ConvNeXt-Tiny is reserved for M1. It provides a meaningful controlled next
-experiment because the fixed fold, resolution, preprocessing, weighted loss,
-optimizer framework, and evaluation can remain unchanged while the principal
-changed variable is the image architecture.
+### What is ConvNeXt?
+
+ConvNeXt is a convolutional architecture that modernises a residual CNN using
+design choices such as a patch-like stem, large-kernel depthwise convolution,
+LayerNorm, GELU, pointwise channel expansion, and stochastic depth. It remains
+a hierarchical image model and retains residual connections.
+
+### How does it differ conceptually from ResNet18?
+
+ResNet18 mainly uses standard 3x3 convolutions with BatchNorm and ReLU inside
+residual blocks. Torchvision ConvNeXt uses 7x7 depthwise spatial convolution,
+separate pointwise channel mixing, LayerNorm, GELU, layer scaling, and drop
+path. Many internal properties change together, so M1 compares architecture
+families rather than isolating one component.
+
+### What are depthwise convolution, LayerNorm, and GELU?
+
+A depthwise convolution applies one spatial filter per input channel, leaving
+channel mixing to later pointwise layers. LayerNorm normalises features within
+each sample rather than using batch statistics. GELU is a smooth nonlinear
+activation that scales values according to their magnitude instead of applying
+the hard zero boundary used by ReLU.
+
+### What is stochastic depth or drop path?
+
+During training, stochastic depth can randomly bypass a residual branch for
+some samples. This regularises the network while the full deterministic model
+is used for evaluation. M1 retained torchvision ConvNeXt-Tiny's built-in
+stochastic-depth design and did not add custom dropout.
+
+### Why ConvNeXt-Tiny?
+
+Tiny is the smallest standard ConvNeXt variant and was practical on the
+available GPU while still providing a stronger-capacity comparison with
+ResNet18. Its binary model had 27,820,897 parameters, versus 11,177,025 for
+B0, so larger ConvNeXt variants would increase an already substantial compute
+difference.
+
+### Why keep B0 preprocessing and optimisation choices?
+
+M1 used the same Fold 0, 224x224 RGB inputs, transforms, weighted BCE,
+training-only `pos_weight`, AdamW, learning rate, weight decay, AMP policy,
+epoch budget, early stopping, and threshold as B0. Matching these external
+choices reduces confounding, so the principal controlled change is the image
+architecture. Individually tuning each architecture could improve its result,
+but would weaken this architecture comparison and increase computational cost.
+
+### Why transfer learning and full fine-tuning?
+
+M1 started from official ImageNet `IMAGENET1K_V1` weights, replaced only the
+final classifier with one logit, and updated all parameters. Pretraining
+provides general visual features; full fine-tuning adapts the entire hierarchy
+to lesion images.
 
 ---
 
@@ -176,7 +225,7 @@ for every trainable parameter, after which AdamW updates the parameters.
 
 ### Why weight the positive class?
 
-Only 467 of 26,499 training examples are melanoma. B0 used
+Only 467 of 26,499 training examples are melanoma. B0 and M1 used
 `pos_weight = 26032 / 467 = 55.74304068522484`, so errors on positive training
 examples contribute more strongly to the objective. This changes optimisation;
 it is not threshold tuning or oversampling.
@@ -190,7 +239,7 @@ checkpoint selection, and final evaluation.
 
 ---
 
-## 9. Evaluation metrics and B0 evidence
+## 9. Evaluation metrics and B0/M1 evidence
 
 ### Why AdamW and AMP?
 
@@ -235,6 +284,45 @@ B0 was evaluated on one fixed fold, without confidence intervals or external
 validation. Weighted BCE improved sensitivity but left a substantial
 sensitivity-specificity trade-off and low precision. No threshold was tuned,
 so the reported operating point remains the common predeclared threshold 0.5.
+
+### What happened during M1 training?
+
+M1's ROC-AUC and Average Precision both peaked at epoch 4 (0.9008 and
+0.1694). Training loss generally decreased through epoch 6 but rose at epoch
+7. Validation loss spiked at epoch 5 and then recovered, while post-peak
+ROC-AUC remained close to 0.892. Early stopping triggered after epoch 7 and
+restored epoch 4. Both B0 and M1 showed fluctuation, but M1's later ROC-AUC and
+validation loss were more stable than B0's stronger post-peak deterioration.
+
+### What changed from B0 to M1?
+
+The image architecture and its internal parameter count changed: ResNet18 had
+11,177,025 trainable parameters and ConvNeXt-Tiny had 27,820,897. The data,
+Fold 0, transforms, image size, loss, `pos_weight`, optimiser settings, AMP,
+epoch budget, early stopping, checkpoint metric, and threshold remained the
+same. M1 took 767.5 seconds versus 593.8 seconds for B0.
+
+### Which model performed better?
+
+Under the fixed protocol, M1 improved ROC-AUC from 0.8643 to 0.9008, Average
+Precision from 0.1193 to 0.1694, balanced accuracy from 0.7812 to 0.8010, and
+sensitivity from 0.7949 to 0.9744. It detected 114 melanomas rather than 93
+and reduced false negatives from 24 to 3.
+
+The threshold trade-off worsened in other respects: M1 produced 2,424 false
+positives rather than 1,513, specificity fell from 0.7676 to 0.6276,
+precision fell from 0.0579 to 0.0449, and F1 fell from 0.1080 to 0.0859.
+Therefore M1 ranked cases better and detected more melanomas, but it did not
+produce a uniformly better threshold-0.5 classifier.
+
+### What are the limitations of the architecture comparison?
+
+Only one fixed fold was evaluated, without confidence intervals or external
+validation. The architectures differ in many internal mechanisms and
+parameter count, so no single component can be credited causally. The common
+hyperparameters favour experimental control but may not be individually
+optimal. The results do not establish clinical utility or statistically
+significant architecture superiority.
 
 ---
 
