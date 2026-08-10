@@ -33,6 +33,17 @@
       "pdf_after": "1ea13f31c600f8904c0dadcb72fdd67d590bcb59e81db5504365a2869e7e8394"
     }
   },
+  "j3_pipeline_recovery": {
+    "recovered_at": "2026-08-10T14:01:32+02:00",
+    "reason": "Approved tracked PNG/PDF were unexpectedly absent at the J3 initial check.",
+    "regenerated_only": [
+      "outputs/final/figures/main/Fig_Main_01_Pipeline.png",
+      "outputs/final/figures/main/Fig_Main_01_Pipeline.pdf"
+    ],
+    "approved_wording_preserved": true,
+    "png_sha256": "8f479f82aeadac742594177a6a7f1e4ca204fbdafb9463b1d7b8a51f66fe2e71",
+    "pdf_sha256": "a829803ced6d37140568dc1848cf518769855951e4e464230bec87628d26b379"
+  },
   "automated_qc": {
     "figure_files": [
       {

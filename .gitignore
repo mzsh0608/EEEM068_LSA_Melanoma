@@ -70,3 +70,6 @@ data/test_images/
 
 review_package/
 Phase_J_Figure_Review.zip
+
+# Generated report-writing support bundle
+report_bundle/
