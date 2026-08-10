@@ -1,0 +1,15 @@
+{
+  "table": "outputs/final/tables/dataset_summary.csv",
+  "created_at": "2026-08-10T12:18:57+02:00",
+  "source_files": [
+    "outputs/dataset_summary.json",
+    "data/train.csv",
+    "data/train_folds.csv",
+    "outputs/analysis/data_integrity/exact_image_duplicate_summary.json"
+  ],
+  "derivations": {
+    "class_and_patient_counts": "outputs/dataset_summary.json",
+    "train_validation_counts_and_patient_overlap": "data/train.csv joined one-to-one with data/train_folds.csv on image_name",
+    "exact_content_counts": "outputs/analysis/data_integrity/exact_image_duplicate_summary.json"
+  }
+}

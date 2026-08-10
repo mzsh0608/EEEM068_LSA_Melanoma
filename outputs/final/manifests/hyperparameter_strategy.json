@@ -1,0 +1,19 @@
+{
+  "created_at": "2026-08-10T12:18:57+02:00",
+  "table": "outputs/final/tables/hyperparameter_selection.csv",
+  "systematic_search_performed": false,
+  "systematic_search_statement": "A systematic grid, random, or Bayesian hyperparameter search was not performed.",
+  "matching_strategy": "Deep-model settings were deliberately matched across B0, M1, and M2 to reduce optimization-policy confounding.",
+  "effective_duration_selection": "Early stopping and maximum validation ROC-AUC checkpointing selected effective training duration.",
+  "threshold_strategy": "Threshold 0.5 is the predeclared common comparison point; the Phase I threshold grid is post-hoc behavioural analysis only.",
+  "stronger_future_design": "A stronger tuning design would require a separate patient-grouped inner validation process or nested cross-validation.",
+  "source_files": [
+    "logs/B0_resnet18/config.json",
+    "logs/M1_convnext_image/config.json",
+    "logs/M2_convnext_metadata/config.json",
+    "logs/B0_resnet18/history.csv",
+    "logs/M1_convnext_image/history.csv",
+    "logs/M2_convnext_metadata/history.csv",
+    "outputs/analysis/phase_i_summary.json"
+  ]
+}

@@ -1,0 +1,13 @@
+metric,B0,M1,M1_minus_B0,B0_parameters,M1_parameters,B0_actual_epochs,M1_actual_epochs,B0_duration,M1_duration,comparison_type,interpretation_boundary
+roc_auc,0.864275867501674,0.9008481363320072,0.036572268830333265,11177025,27820897,7,7,593.759864599997,767.4979752000072,matched external-protocol architecture-family comparison,does not isolate individual ConvNeXt mechanisms
+average_precision,0.11927313065468292,0.16940561068661716,0.05013248003193424,11177025,27820897,7,7,593.759864599997,767.4979752000072,matched external-protocol architecture-family comparison,does not isolate individual ConvNeXt mechanisms
+accuracy,0.7680700165987626,0.6337709370755998,-0.13429907952316278,11177025,27820897,7,7,593.759864599997,767.4979752000072,matched external-protocol architecture-family comparison,does not isolate individual ConvNeXt mechanisms
+balanced_accuracy,0.7812300602623183,0.8010043719721138,0.01977431170979549,11177025,27820897,7,7,593.759864599997,767.4979752000072,matched external-protocol architecture-family comparison,does not isolate individual ConvNeXt mechanisms
+precision,0.05790784557907846,0.04491725768321513,-0.012990587895863326,11177025,27820897,7,7,593.759864599997,767.4979752000072,matched external-protocol architecture-family comparison,does not isolate individual ConvNeXt mechanisms
+sensitivity,0.7948717948717948,0.9743589743589743,0.17948717948717952,11177025,27820897,7,7,593.759864599997,767.4979752000072,matched external-protocol architecture-family comparison,does not isolate individual ConvNeXt mechanisms
+specificity,0.7675883256528417,0.6276497695852534,-0.13993855606758832,11177025,27820897,7,7,593.759864599997,767.4979752000072,matched external-protocol architecture-family comparison,does not isolate individual ConvNeXt mechanisms
+f1,0.10795124782356355,0.08587570621468926,-0.02207554160887429,11177025,27820897,7,7,593.759864599997,767.4979752000072,matched external-protocol architecture-family comparison,does not isolate individual ConvNeXt mechanisms
+tn,4997.0,4086.0,-911.0,11177025,27820897,7,7,593.759864599997,767.4979752000072,matched external-protocol architecture-family comparison,does not isolate individual ConvNeXt mechanisms
+fp,1513.0,2424.0,911.0,11177025,27820897,7,7,593.759864599997,767.4979752000072,matched external-protocol architecture-family comparison,does not isolate individual ConvNeXt mechanisms
+fn,24.0,3.0,-21.0,11177025,27820897,7,7,593.759864599997,767.4979752000072,matched external-protocol architecture-family comparison,does not isolate individual ConvNeXt mechanisms
+tp,93.0,114.0,21.0,11177025,27820897,7,7,593.759864599997,767.4979752000072,matched external-protocol architecture-family comparison,does not isolate individual ConvNeXt mechanisms

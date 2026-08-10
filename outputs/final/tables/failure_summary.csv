@@ -1,0 +1,2 @@
+m2_tp,m2_tn,m2_fp,m2_fn,m1_fp_to_m2_tn,m1_tp_to_m2_fn,m1_tn_to_m2_fp,m1_fn_to_m2_tp,net_false_positive_change,net_false_negative_change,mean_probability_delta,median_probability_delta,visual_review_cases,content_unique_visual_cases,interpretation_boundary
+105,4791,1719,12,826,9,121,0,-705,9,-0.07259902047261163,0.0007305925246328003,24,24,model disagreement only; not causal metadata contribution

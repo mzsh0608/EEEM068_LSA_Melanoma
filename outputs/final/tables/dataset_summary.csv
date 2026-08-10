@@ -1,0 +1,2 @@
+total_images,benign_images,melanoma_images,melanoma_prevalence,unique_patients,train_images,train_benign,train_melanoma,validation_images,validation_benign,validation_melanoma,patient_overlap,exact_duplicate_groups,exact_duplicate_records,cross_split_exact_duplicates,conflicting_target_duplicate_groups
+33126,32542,584,0.01762965646320111,2056,26499,26032,467,6627,6510,117,0,433,866,0,0

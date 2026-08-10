@@ -1,0 +1,17 @@
+parameter,B0_value,M1_value,M2_value,selection_category,selection_basis,systematically_tuned,notes
+image_size,224,224,224,predeclared_shared,Matched deep-model input resolution,NO,No resolution search was performed.
+batch_size,32,32,32,predeclared_shared,Matched memory-feasible batch setting,NO,No batch-size search was performed.
+optimizer,adamw,adamw,adamw,predeclared_shared,Matched optimizer policy,NO,AdamW was used for all deep models.
+learning_rate,0.0001,0.0001,0.0001,predeclared_shared,Matched conservative learning rate,NO,No learning-rate search was performed.
+weight_decay,0.0001,0.0001,0.0001,predeclared_shared,Matched regularization setting,NO,No weight-decay search was performed.
+loss,weighted_bce,weighted_bce,weighted_bce,predeclared_shared,Matched imbalance-aware objective,NO,The loss family was not systematically tuned.
+pos_weight,55.74304068522484,55.74304068522484,55.74304068522484,data_derived,train_benign / train_melanoma = 26032 / 467,NO,Derived from the training partition only.
+scheduler,none,none,none,predeclared_shared,Matched no-scheduler policy,NO,No scheduler search was performed.
+max_epochs,10,10,10,predeclared_shared,Shared upper bound with early stopping,NO,Maximum epochs were not systematically tuned.
+early_stopping_patience,3,3,3,predeclared_shared,Shared early-stopping policy,NO,Patience was not systematically tuned.
+checkpoint_metric,roc_auc,roc_auc,roc_auc,predeclared_shared,Validation ROC-AUC selection metric,NO,Checkpoint selection is not a broad hyperparameter search.
+primary_threshold,0.5,0.5,0.5,predeclared_shared,Common evaluation operating point,NO,Threshold 0.5 is the authoritative comparison threshold.
+best_epoch,4,4,8,checkpoint_selected,Maximum validation ROC-AUC before stopping,NO,Effective duration was selected by checkpointing/early stopping.
+phase_i_threshold_grid,not_applicable,"[0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]","[0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]",posthoc_analysis_only,Fixed behavioural-analysis grid on Fold 0,NO,No threshold was labelled optimal or substituted for the primary threshold.
+metadata_embedding_dim,not_applicable,not_applicable,32,architecture_specific,Predeclared M2 metadata-branch design,NO,Not systematically tuned.
+metadata_dropout,not_applicable,not_applicable,0.2,architecture_specific,Predeclared M2 metadata-branch regularization,NO,Not systematically tuned.

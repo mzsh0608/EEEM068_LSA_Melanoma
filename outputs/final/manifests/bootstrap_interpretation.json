@@ -1,0 +1,14 @@
+{
+  "created_at": "2026-08-10T12:18:57+02:00",
+  "table": "outputs/final/tables/bootstrap_summary.csv",
+  "bootstrap_unit": "patient",
+  "paired": true,
+  "scope": "internal validation resampling only",
+  "external_validation": false,
+  "automatic_significance_proof": false,
+  "notes": "Intervals quantify paired internal Fold-0 uncertainty and are neither external validation nor automatic significance proof.",
+  "source_files": [
+    "outputs/analysis/bootstrap/M1_M2_bootstrap_summary.json",
+    "outputs/analysis/technical_audit/pre_phase_j_audit.json"
+  ]
+}

@@ -1,0 +1,416 @@
+{
+  "phase": "J1B",
+  "created_at": "2026-08-10T12:18:57+02:00",
+  "starting_head": "b60cb79a791786e2ab9efb77da71bdd893884cee",
+  "generation_utility": "src/final_tables.py",
+  "table_count": 12,
+  "tables": [
+    {
+      "path": "outputs/final/tables/dataset_summary.csv",
+      "rows": 1,
+      "column_count": 16,
+      "columns": [
+        "total_images",
+        "benign_images",
+        "melanoma_images",
+        "melanoma_prevalence",
+        "unique_patients",
+        "train_images",
+        "train_benign",
+        "train_melanoma",
+        "validation_images",
+        "validation_benign",
+        "validation_melanoma",
+        "patient_overlap",
+        "exact_duplicate_groups",
+        "exact_duplicate_records",
+        "cross_split_exact_duplicates",
+        "conflicting_target_duplicate_groups"
+      ],
+      "source_files": [
+        "outputs/dataset_summary.json",
+        "data/train.csv",
+        "data/train_folds.csv",
+        "outputs/analysis/data_integrity/exact_image_duplicate_summary.json"
+      ],
+      "sha256": "290c7fcb20cb8c6ed94f34dc80ad9c9062fea95cd88b2187fe4e5785d54b68b6",
+      "creation_timestamp": "2026-08-10T12:18:57+02:00"
+    },
+    {
+      "path": "outputs/final/tables/main_model_results.csv",
+      "rows": 5,
+      "column_count": 23,
+      "columns": [
+        "model_id",
+        "model_name",
+        "input_representation",
+        "image_size",
+        "metadata_used",
+        "training_data_scope",
+        "imbalance_strategy",
+        "comparison_role",
+        "roc_auc",
+        "average_precision",
+        "accuracy",
+        "balanced_accuracy",
+        "precision",
+        "sensitivity",
+        "specificity",
+        "f1",
+        "tn",
+        "fp",
+        "fn",
+        "tp",
+        "primary_threshold",
+        "validation_n",
+        "validation_positive_n"
+      ],
+      "source_files": [
+        "logs/H0_logistic_unweighted/metrics.json",
+        "logs/H1_logistic_weighted/metrics.json",
+        "logs/B0_resnet18/metrics.json",
+        "logs/M1_convnext_image/metrics.json",
+        "logs/M2_convnext_metadata/metrics.json",
+        "logs/H0_logistic_unweighted/config.json",
+        "logs/H1_logistic_weighted/config.json",
+        "logs/B0_resnet18/config.json",
+        "logs/M1_convnext_image/config.json",
+        "logs/M2_convnext_metadata/config.json",
+        "outputs/final/manifests/comparison_boundaries.json"
+      ],
+      "sha256": "32114eaf48240d5d9e5b515817e621de06b557b2bea5f9e1931d0aadd8443db2",
+      "creation_timestamp": "2026-08-10T12:18:57+02:00"
+    },
+    {
+      "path": "outputs/final/tables/deep_model_protocol.csv",
+      "rows": 3,
+      "column_count": 34,
+      "columns": [
+        "model_id",
+        "architecture",
+        "pretrained_weights",
+        "fine_tune_all",
+        "image_size",
+        "batch_size",
+        "num_workers",
+        "train_n",
+        "validation_n",
+        "train_benign",
+        "train_melanoma",
+        "validation_benign",
+        "validation_melanoma",
+        "augmentation_summary",
+        "normalization",
+        "loss",
+        "pos_weight",
+        "optimizer",
+        "learning_rate",
+        "weight_decay",
+        "scheduler",
+        "amp",
+        "max_epochs",
+        "patience",
+        "actual_epochs",
+        "best_epoch",
+        "checkpoint_metric",
+        "primary_threshold",
+        "seed",
+        "parameter_count",
+        "trainable_parameter_count",
+        "duration_seconds",
+        "mean_epoch_seconds",
+        "median_epoch_seconds"
+      ],
+      "source_files": [
+        "logs/B0_resnet18/config.json",
+        "logs/M1_convnext_image/config.json",
+        "logs/M2_convnext_metadata/config.json",
+        "logs/B0_resnet18/history.csv",
+        "logs/M1_convnext_image/history.csv",
+        "logs/M2_convnext_metadata/history.csv",
+        "outputs/analysis/technical_audit/training_timing_audit.csv"
+      ],
+      "sha256": "0d9846b6be8edfdfe37b2d172de1520993158a8fbc54b87c8c599b4ef8119454",
+      "creation_timestamp": "2026-08-10T12:18:57+02:00"
+    },
+    {
+      "path": "outputs/final/tables/hyperparameter_selection.csv",
+      "rows": 16,
+      "column_count": 8,
+      "columns": [
+        "parameter",
+        "B0_value",
+        "M1_value",
+        "M2_value",
+        "selection_category",
+        "selection_basis",
+        "systematically_tuned",
+        "notes"
+      ],
+      "source_files": [
+        "logs/B0_resnet18/config.json",
+        "logs/M1_convnext_image/config.json",
+        "logs/M2_convnext_metadata/config.json",
+        "logs/B0_resnet18/history.csv",
+        "logs/M1_convnext_image/history.csv",
+        "logs/M2_convnext_metadata/history.csv",
+        "outputs/analysis/phase_i_summary.json"
+      ],
+      "sha256": "28bbc284afdf486a59b85ed16f28493a688d7576f79b98ab35c14acd664b72e5",
+      "creation_timestamp": "2026-08-10T12:18:57+02:00"
+    },
+    {
+      "path": "outputs/final/tables/training_summary.csv",
+      "rows": 24,
+      "column_count": 15,
+      "columns": [
+        "model_id",
+        "epoch",
+        "train_loss",
+        "val_loss",
+        "val_roc_auc",
+        "val_average_precision",
+        "val_accuracy",
+        "val_balanced_accuracy",
+        "val_precision",
+        "val_sensitivity",
+        "val_specificity",
+        "val_f1",
+        "learning_rate",
+        "seconds",
+        "is_best_roc_auc_epoch"
+      ],
+      "source_files": [
+        "logs/B0_resnet18/history.csv",
+        "logs/M1_convnext_image/history.csv",
+        "logs/M2_convnext_metadata/history.csv"
+      ],
+      "sha256": "b8c4cfc534f35e2bca1c7d30d028448e7192c8a5cfdc18f1a3894fd19af9a7e4",
+      "creation_timestamp": "2026-08-10T12:18:57+02:00"
+    },
+    {
+      "path": "outputs/final/tables/B0_M1_architecture_comparison.csv",
+      "rows": 12,
+      "column_count": 12,
+      "columns": [
+        "metric",
+        "B0",
+        "M1",
+        "M1_minus_B0",
+        "B0_parameters",
+        "M1_parameters",
+        "B0_actual_epochs",
+        "M1_actual_epochs",
+        "B0_duration",
+        "M1_duration",
+        "comparison_type",
+        "interpretation_boundary"
+      ],
+      "source_files": [
+        "logs/B0_resnet18/metrics.json",
+        "logs/M1_convnext_image/metrics.json",
+        "outputs/analysis/technical_audit/training_timing_audit.csv",
+        "outputs/final/manifests/comparison_boundaries.json"
+      ],
+      "sha256": "0eee44a237596f7bf5ac32b56e3da3172732ed4c8f8f3b73bc03b94548ef5240",
+      "creation_timestamp": "2026-08-10T12:18:57+02:00"
+    },
+    {
+      "path": "outputs/final/tables/M1_M2_metadata_ablation.csv",
+      "rows": 12,
+      "column_count": 13,
+      "columns": [
+        "metric",
+        "M1",
+        "M2",
+        "M2_minus_M1",
+        "M1_parameters",
+        "M2_parameters",
+        "parameter_difference",
+        "M1_actual_epochs",
+        "M2_actual_epochs",
+        "M1_duration",
+        "M2_duration",
+        "comparison_type",
+        "interpretation_boundary"
+      ],
+      "source_files": [
+        "logs/M1_convnext_image/metrics.json",
+        "logs/M2_convnext_metadata/metrics.json",
+        "outputs/analysis/technical_audit/training_timing_audit.csv",
+        "outputs/final/manifests/comparison_boundaries.json"
+      ],
+      "sha256": "373e43e777b1d900b84ad6a0afd2825f8b86885976875e398f4629c0773131d1",
+      "creation_timestamp": "2026-08-10T12:18:57+02:00"
+    },
+    {
+      "path": "outputs/final/tables/threshold_summary.csv",
+      "rows": 18,
+      "column_count": 13,
+      "columns": [
+        "model",
+        "threshold",
+        "precision",
+        "sensitivity",
+        "specificity",
+        "f1",
+        "balanced_accuracy",
+        "tp",
+        "fp",
+        "fn",
+        "tn",
+        "predicted_positive_count",
+        "is_primary_threshold"
+      ],
+      "source_files": [
+        "outputs/analysis/threshold/M1_threshold_analysis.csv",
+        "outputs/analysis/threshold/M2_threshold_analysis.csv",
+        "outputs/analysis/phase_i_summary.json"
+      ],
+      "sha256": "fb296cd491060fe92879db360352789199574e6e3b3fa59d3d3ed2859c9e7ce5",
+      "creation_timestamp": "2026-08-10T12:18:57+02:00"
+    },
+    {
+      "path": "outputs/final/tables/bootstrap_summary.csv",
+      "rows": 3,
+      "column_count": 10,
+      "columns": [
+        "metric",
+        "observed_m2_minus_m1",
+        "bootstrap_median",
+        "ci_2_5",
+        "ci_97_5",
+        "requested_iterations",
+        "valid_iterations",
+        "skipped_iterations",
+        "bootstrap_unit",
+        "paired"
+      ],
+      "source_files": [
+        "outputs/analysis/bootstrap/M1_M2_bootstrap_summary.json",
+        "outputs/analysis/technical_audit/pre_phase_j_audit.json"
+      ],
+      "sha256": "76bba1b6974de6d2449398413a31aa569fd054197bcb1d373e98d621653e0c5c",
+      "creation_timestamp": "2026-08-10T12:18:57+02:00"
+    },
+    {
+      "path": "outputs/final/tables/subgroup_summary.csv",
+      "rows": 24,
+      "column_count": 14,
+      "columns": [
+        "model",
+        "group_variable",
+        "group_value",
+        "n",
+        "positive_count",
+        "negative_count",
+        "prevalence",
+        "roc_auc",
+        "average_precision",
+        "sensitivity",
+        "specificity",
+        "precision",
+        "f1",
+        "small_positive_count"
+      ],
+      "source_files": [
+        "outputs/analysis/subgroups/M1_subgroup_metrics.csv",
+        "outputs/analysis/subgroups/M2_subgroup_metrics.csv"
+      ],
+      "sha256": "43ccd6b575374e79dcdf35970b4db223846bf47bd9a2984f8aa31f1979635beb",
+      "creation_timestamp": "2026-08-10T12:18:57+02:00"
+    },
+    {
+      "path": "outputs/final/tables/failure_summary.csv",
+      "rows": 1,
+      "column_count": 15,
+      "columns": [
+        "m2_tp",
+        "m2_tn",
+        "m2_fp",
+        "m2_fn",
+        "m1_fp_to_m2_tn",
+        "m1_tp_to_m2_fn",
+        "m1_tn_to_m2_fp",
+        "m1_fn_to_m2_tp",
+        "net_false_positive_change",
+        "net_false_negative_change",
+        "mean_probability_delta",
+        "median_probability_delta",
+        "visual_review_cases",
+        "content_unique_visual_cases",
+        "interpretation_boundary"
+      ],
+      "source_files": [
+        "logs/M1_convnext_image/metrics.json",
+        "logs/M2_convnext_metadata/metrics.json",
+        "outputs/analysis/failures/M1_M2_disagreement_summary.json",
+        "outputs/analysis/phase_i_summary.json",
+        "outputs/analysis/failures/M2_failure_cases.csv",
+        "outputs/analysis/data_integrity/exact_image_duplicates.csv"
+      ],
+      "sha256": "e727c3ea9a848f725aa5e2e121d8b97b8119bb847db1177330d619eb03832c1c",
+      "creation_timestamp": "2026-08-10T12:18:57+02:00"
+    },
+    {
+      "path": "outputs/final/tables/integrity_summary.csv",
+      "rows": 1,
+      "column_count": 13,
+      "columns": [
+        "patient_overlap",
+        "images_hashed",
+        "unique_hashes",
+        "duplicate_groups",
+        "duplicate_records",
+        "same_patient_same_split_groups",
+        "different_patient_same_split_groups",
+        "same_patient_cross_split_groups",
+        "different_patient_cross_split_groups",
+        "conflicting_target_groups",
+        "bootstrap_multiplicity_verified",
+        "frozen_artifacts_hash_verified",
+        "validation_set_equivalence_verified"
+      ],
+      "source_files": [
+        "data/train.csv",
+        "data/train_folds.csv",
+        "outputs/analysis/data_integrity/exact_image_duplicate_summary.json",
+        "outputs/analysis/technical_audit/pre_phase_j_audit.json",
+        "outputs/final/manifests/J1A_evidence_audit.json"
+      ],
+      "sha256": "7cb48ade32dd3a91556ae887ad567b40e757f7c47643dd8fdb146b269a8b11eb",
+      "creation_timestamp": "2026-08-10T12:18:57+02:00"
+    }
+  ],
+  "companion_artifacts": [
+    {
+      "path": "outputs/final/manifests/dataset_summary_sources.json",
+      "sha256": "b34bc74b36b91d1b347022aeff12b2a79f0e5e2bcd458992be8bac05cba3e24b"
+    },
+    {
+      "path": "outputs/final/manifests/hyperparameter_strategy.json",
+      "sha256": "681b094b6263a91dcff4e5b5ee46084a797db90fed56d0d2b2f48dce7aad2f8b"
+    },
+    {
+      "path": "outputs/final/manifests/bootstrap_interpretation.json",
+      "sha256": "69c8a68a595faab03ce280ed71780c41a457e294dbc30d78fac3c887d0f6c5d3"
+    },
+    {
+      "path": "report/assessment_compliance.md",
+      "sha256": "2debb2ff13effc046f1da7e493a2174c169a8754b5d26c49dd49dc7f1426886d"
+    }
+  ],
+  "cross_checks": {
+    "main_results_match_authoritative_metrics": true,
+    "B0_M1_deltas_exact": true,
+    "M1_M2_deltas_exact": true,
+    "threshold_0_5_confusion_counts_match": true,
+    "bootstrap_summary_matches_source": true,
+    "subgroup_partitions_reconcile_to_validation_n": true,
+    "training_summary_matches_histories": true,
+    "frozen_artifacts_hash_verified": true
+  },
+  "unsupported_or_invented_values_detected": false,
+  "publication_figures_generated": false,
+  "J1C_started": false
+}
