@@ -31,6 +31,8 @@ def test_results_notebook_is_analysis_only_and_uses_required_terminology(tmp_pat
     assert "test performance" not in notebook_text
     assert "pr-auc" not in notebook_text
     assert "optimal" not in notebook_text
+    assert "j2a" not in notebook_text
+    assert "outputs/final/review" not in notebook_text
     assert "--fit" not in code
     assert "savefig" not in code
     assert ".to_csv" not in code

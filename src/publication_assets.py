@@ -1,4 +1,4 @@
-"""Generate J2B publication figures and display-formatted tables."""
+"""Generate final publication figures and display-formatted tables."""
 
 from __future__ import annotations
 
@@ -106,7 +106,7 @@ def _configure_style() -> None:
 def _save_figure(fig: plt.Figure, png_path: Path, pdf_path: Path) -> None:
     png_path.parent.mkdir(parents=True, exist_ok=True)
     pdf_path.parent.mkdir(parents=True, exist_ok=True)
-    metadata = {"Creator": "EEEM068 J2B publication asset generator"}
+    metadata = {"Creator": "EEEM068 publication asset generator"}
     fig.savefig(png_path, dpi=300, bbox_inches="tight", pad_inches=0.06, metadata=metadata)
     fig.savefig(pdf_path, bbox_inches="tight", pad_inches=0.06, metadata=metadata)
     plt.close(fig)
@@ -126,7 +126,7 @@ def _resolve_source_path(root: Path, raw_path: str) -> Path:
 
 
 def load_sources(root: Path) -> dict[str, Any]:
-    """Load frozen J1/J2A evidence and validate the interpretation constraints."""
+    """Load frozen evidence and validate the interpretation constraints."""
     table_dir = root / "outputs" / "final" / "tables"
     manifest_dir = root / "outputs" / "final" / "manifests"
     sources: dict[str, Any] = {
@@ -171,7 +171,7 @@ def load_sources(root: Path) -> dict[str, Any]:
     sources["notebook_path"] = notebook_path
     sources["notebook"] = notebook
     if notebook_errors:
-        raise ValueError("J2A notebook contains stored execution errors")
+        raise ValueError("Final results notebook contains stored execution errors")
 
     validate_source_data(sources)
     return sources
@@ -944,7 +944,7 @@ def generate_publication_tables(sources: dict[str, Any], output_dir: Path) -> di
 
 
 def figure_manifest_rows(root: Path) -> list[dict[str, str]]:
-    """Build the fixed source and interpretation map for every J2B figure."""
+    """Build the fixed source and interpretation map for every final figure."""
     source_map = {
         "Fig_Main_01": (
             "outputs/final/tables/dataset_summary.csv; outputs/final/tables/deep_model_protocol.csv; "

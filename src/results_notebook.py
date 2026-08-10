@@ -1,4 +1,4 @@
-"""Build the frozen-evidence J2A results-analysis notebook."""
+"""Build the frozen-evidence final results-analysis notebook."""
 
 from __future__ import annotations
 
@@ -41,7 +41,7 @@ SECTION_HEADINGS = (
     "## 12. Failure case summary",
     "## 13. Grad-CAM overview",
     "## 14. Data integrity summary",
-    "## 15. Export support",
+    "## 15. Submission artifact scope",
 )
 
 
@@ -50,7 +50,7 @@ def _source(text: str) -> str:
 
 
 def build_notebook(output_path: Path) -> Path:
-    """Create the J2A notebook without reading or changing experiment artifacts."""
+    """Create the final notebook without changing experiment artifacts."""
     output_path = Path(output_path)
 
     cells = [
@@ -58,7 +58,7 @@ def build_notebook(output_path: Path) -> Path:
             """
             # Final Results Analysis — EEEM068 LSA Melanoma Classification
 
-            All core models and scientific artifacts are frozen. This notebook performs no training; it reads the J1 authoritative evidence bundle for analysis and manual review. Fold 0 is the fixed patient-aware validation fold. AP denotes Average Precision.
+            All core models and scientific artifacts are frozen. This notebook performs no training; it reads the authoritative evidence bundle for final submission analysis. Fold 0 is the fixed patient-aware validation fold. AP denotes Average Precision.
             """
         )),
         new_code_cell(_source(
@@ -645,19 +645,17 @@ def build_notebook(output_path: Path) -> Path:
         )),
         new_markdown_cell(_source(
             """
-            ## 15. Export support
+            ## 15. Submission artifact scope
 
-            J2A creates no derivative data exports and no publication figures. All displayed tables and plots are notebook outputs computed in memory from frozen evidence.
+            This notebook creates no derivative data exports or publication figures. All displayed tables and plots are notebook outputs computed in memory from frozen evidence.
             """
         )),
         new_code_cell(_source(
             """
-            notebook_exports = []
             display(pd.DataFrame({
-                "Notebook-support exports": ["None"],
-                "Output directory": ["outputs/final/review/notebook_exports/ (not created)"],
+                "Notebook artifact": ["Tracked executed notebook"],
+                "Derivative exports": ["None"],
             }))
-            assert notebook_exports == []
             """
         )),
     ]

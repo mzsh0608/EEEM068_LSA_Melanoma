@@ -1,26 +1,19 @@
 # Experiment Logs
 
-Each neural network experiment will store:
+The H0, H1, B0, M1, and M2 directories contain completed, frozen experiment
+evidence.
 
-- experiment configuration
-- training history
-- validation metrics
-- validation predictions
-- observations
+- `config.json` records the resolved experiment configuration.
+- `metrics.json` records Fold-0 validation metrics at the primary threshold
+  0.5; H1 also retains its separate historical threshold-0.3 metrics.
+- `history.csv` records epoch-level loss, validation metrics, learning rate,
+  and timing for B0/M1/M2.
+- `environment.json` records the audited deep-training software and hardware
+  environment.
+- `training.log` or `experiment.log` records the completed run narrative.
+- M2 additionally stores the fitted metadata preprocessor and its summary.
 
-## Experiment status
-
-| ID | Experiment | Status |
-|---|---|---|
-| H0 | Unweighted Logistic Regression | Complete |
-| H1 | Class-weighted Logistic Regression | Complete |
-| B0 | ResNet18 + weighted BCE | Complete |
-| M1 | ConvNeXt-Tiny image-only | Complete |
-| M2 | ConvNeXt-Tiny + metadata | Complete |
-
-The H0, H1, B0, M1, and M2 core model hierarchy and the Phase I behaviour and
-reliability analyses are complete.
-
-The historical fields `val_pr_auc` and `pr_auc_average_precision` contain
-scikit-learn Average Precision (AP). They remain unchanged for compatibility;
-they do not contain a separately calculated trapezoidal PR-AUC.
+Frozen per-image prediction files are stored under `outputs/predictions/`.
+Historical fields named `val_pr_auc` or `pr_auc_average_precision` contain
+scikit-learn Average Precision (AP), not a separately integrated trapezoidal
+PR-AUC.

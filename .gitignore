@@ -6,6 +6,13 @@ __pycache__/
 *.py[cod]
 .pytest_cache/
 .pytest_tmp/
+.pytest_tmp*/
+.pytest-tmp*/
+.coverage
+coverage.xml
+htmlcov/
+.mypy_cache/
+.ruff_cache/
 
 # ==============================
 # Virtual environment
@@ -13,12 +20,16 @@ __pycache__/
 
 .venv/
 venv/
+.env
+.env.*
+!.env.example
 
 # ==============================
 # Jupyter
 # ==============================
 
 .ipynb_checkpoints/
+notebooks/*.html
 
 # ==============================
 # VS Code / IDE
@@ -26,6 +37,8 @@ venv/
 
 .vscode/
 .idea/
+.vs/
+*.code-workspace
 
 # ==============================
 # Raw dataset
@@ -33,11 +46,22 @@ venv/
 
 data/train_images/
 data/test_images/
+data/train.csv
+data/test.csv
 
 data/**/*.jpg
 data/**/*.jpeg
 data/**/*.png
 data/**/*.dcm
+data/**/*.tif
+data/**/*.tiff
+data/**/*.zip
+data/**/*.7z
+data/**/*.tar
+data/**/*.gz
+data/**/*.parquet
+data/**/*.npy
+data/**/*.npz
 
 # ==============================
 # Model checkpoints
@@ -46,6 +70,7 @@ data/**/*.dcm
 outputs/checkpoints/*.pth
 outputs/checkpoints/*.pt
 outputs/checkpoints/*.ckpt
+outputs/checkpoints/*.safetensors
 
 # ==============================
 # Operating system
@@ -53,16 +78,6 @@ outputs/checkpoints/*.ckpt
 
 .DS_Store
 Thumbs.db
-
-# ==============================
-# Original SIIM-ISIC input metadata
-# ==============================
-data/train.csv
-data/test.csv
-
-# Raw image folders
-data/train_images/
-data/test_images/
 
 # ==============================
 # Generated manual review package
@@ -73,3 +88,40 @@ Phase_J_Figure_Review.zip
 
 # Generated report-writing support bundle
 report_bundle/
+outputs/final/review/
+
+# Generated local archives
+*.zip
+*.7z
+*.tar
+*.tar.gz
+*.tgz
+
+# Temporary, debug, and local packaging output
+tmp/
+temp/
+scratch/
+debug/
+render/
+rendered/
+backup/
+archive/
+dist/
+build/
+*.tmp
+*.bak
+*.orig
+*.swp
+*~
+
+# Report build intermediates
+report/build/
+report/**/*.aux
+report/**/*.bbl
+report/**/*.blg
+report/**/*.fdb_latexmk
+report/**/*.fls
+report/**/*.log
+report/**/*.out
+report/**/*.synctex.gz
+report/**/*.toc

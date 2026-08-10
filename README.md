@@ -1,172 +1,282 @@
-# Patient-Aware Melanoma Classification under Severe Class Imbalance: Deep Visual Learning, Metadata Fusion and Model Failure Analysis
+# Patient-Aware Melanoma Classification under Severe Class Imbalance: Deep Visual Learning, Metadata Fusion and Reliability Analysis
 
-## 1. Overview
+## Project Overview
 
-This EEEM068 Applied Machine Learning project studies binary melanoma
-classification on the SIIM-ISIC 2020 data under severe class imbalance. It
-uses fixed patient-aware validation and compares historical Logistic
-Regression baselines (H0/H1), an image-only ResNet18 baseline (B0), an
-image-only ConvNeXt-Tiny model (M1), and leakage-safe ConvNeXt-Tiny metadata
-fusion (M2). Post-hoc analyses examine operating thresholds, model
-disagreement, subgroups, failure cases, uncertainty, Grad-CAM attribution, and
-exact-content integrity. The work is an internal experimental evaluation, not
-a clinical-deployment study.
+This EEEM068 Applied Machine Learning project investigates binary melanoma
+classification on the SIIM-ISIC 2020 dataset under severe class imbalance. It
+uses a fixed patient-aware validation split, a controlled ResNet18 versus
+ConvNeXt-Tiny comparison, a ConvNeXt metadata-fusion ablation, and post-hoc
+reliability analysis. The model hierarchy is an experimental progression with
+explicit comparison boundaries, not a five-model architecture leaderboard.
 
-## 2. Final model hierarchy
+## Experimental Hierarchy
 
-| ID | Model | Role and training scope |
+| ID | Model | Role |
 |---|---|---|
-| H0 | Unweighted Logistic Regression | Historical lower bound using flattened 64x64 grayscale pixels and a 5,000-image training subset |
-| H1 | Weighted Logistic Regression | Historical weighting comparison using the same representation and 5,000-image subset |
-| B0 | ResNet18 with weighted BCE | Deep baseline using the full 26,499-image training partition |
-| M1 | ConvNeXt-Tiny with weighted BCE | Image-only architecture comparison using the full training partition |
-| M2 | ConvNeXt-Tiny with leakage-safe metadata fusion and weighted BCE | Metadata-fusion system ablation using the full training partition |
+| H0 | Unweighted Logistic Regression | Historical lower bound |
+| H1 | Class-weighted Logistic Regression | Logistic Regression weighting comparison |
+| B0 | ResNet18 + weighted BCE | Deep residual CNN baseline |
+| M1 | ConvNeXt-Tiny + weighted BCE | Matched architecture-family comparison |
+| M2 | ConvNeXt-Tiny + metadata + weighted BCE | Metadata-fusion system ablation |
 
-H0/H1 use a different representation and training scope from B0/M1/M2. Their
-comparison with the deep models is therefore historical and system-level,
-whereas B0 to M1 is a matched architecture-family comparison and M1 to M2 is
-a metadata-fusion system ablation.
+H0 and H1 use a stratified 5,000-image sample from the training partition,
+64x64 grayscale inputs, and flattened 4,096-dimensional features. B0, M1, and
+M2 use the full 26,499-image training partition and 224x224 RGB network inputs.
+Consequently, H0/H1 to B0 is only a historical system-level progression, not a
+controlled architecture comparison.
 
-## 3. Repository structure
+- H0 -> H1 isolates Logistic Regression class weighting.
+- B0 -> M1 is the cleanest architecture-family comparison.
+- M1 -> M2 is the metadata-fusion system ablation.
 
-| Path | Contents |
-|---|---|
-| `configs/` | Versioned experiment configurations |
-| `data/` | Metadata and fixed patient-aware fold manifest; raw images are Git-ignored |
-| `logs/` | Resolved configurations, histories, metrics, and training logs |
-| `notebooks/` | Data audit and final results-analysis notebooks |
-| `outputs/` | Predictions, analyses, final figures/tables, manifests, and local checkpoints |
-| `report/` | Assessment mapping and evidence-oriented methodology/results notes |
-| `src/` | Data, modelling, training, evaluation, analysis, and publication-asset code |
-| `tests/` | Unit and integration tests |
+## Dataset
 
-## 4. Dataset
+The project uses SIIM-ISIC 2020 data with this audited composition:
 
-The audited dataset contains 33,126 images from 2,056 patients: 32,542 benign
-and 584 melanoma. The permanent Fold-0 split contains 26,499 training images
-(467 melanoma) and 6,627 validation images (117 melanoma), with zero patient
-overlap.
+- 33,126 source images, represented locally as 512x512 JPEG files
+- 32,542 benign images
+- 584 melanoma images
+- 2,056 patients
 
-The integrity audit found 433 exact byte-duplicate image groups. Every group
-remained within the same patient, split, and target, so no exact-content
-training-validation leakage was found. This byte-level audit does not exclude
-perceptual near-duplicates.
+The local source dataset remains at 512x512. During preprocessing, H0/H1
+resize images to 64x64 grayscale, while B0/M1/M2 resize images to 224x224 RGB.
 
-## 5. Environment
+The raw dataset is not included in this repository. Obtain it from the
+official SIIM-ISIC 2020 source and place the training metadata and images at:
 
-The audited experiment environment was:
-
-- Python 3.12.10
-- PyTorch 2.11.0+cu128
-- torchvision 0.26.0+cu128
-- CUDA 12.8
-- NVIDIA RTX 3080 Laptop GPU
-
-Relevant pinned packages are listed in `requirements.txt`. A generic
-`pip install -r requirements.txt` does not by itself guarantee the audited
-`+cu128` PyTorch build. Select and install the appropriate official PyTorch
-CUDA build/index for the target environment first, then install the remaining
-requirements as appropriate.
-
-## 6. Data placement
-
-Place the training metadata at `data/train.csv` and JPEGs at
-`data/train_images/<image_name>.jpg`. The fixed patient-aware mapping is stored
-in `data/train_folds.csv`. Raw image directories are intentionally excluded
-from Git.
-
-## 7. Running tests
-
-From the repository root on Windows:
-
-```powershell
-.\.venv\Scripts\python.exe -m pytest -q
+```text
+data/train.csv
+data/train_images/<image_name>.jpg
 ```
 
-Platform-neutral equivalent when the active Python environment has all
-dependencies:
+The repository does not implement or claim an automated dataset-download
+command. Raw metadata, images, DICOM files, and dataset archives are ignored by
+Git. The tracked `data/train_folds.csv` and `data/lr_train_subset.csv` are
+derived reproducibility manifests, not copies of the raw dataset.
 
-```bash
-python -m pytest -q
-```
+## Patient-Aware Validation
 
-## 8. Final analysis notebook
+`StratifiedGroupKFold` uses `patient_id` as the grouping variable and `target`
+for stratification. The saved five-fold mapping uses Fold 0 as the fixed
+validation fold and folds 1-4 as training.
 
-`notebooks/02_results_analysis.ipynb` is the executed final analysis notebook.
-It consumes the frozen J1 evidence bundle without training and consolidates
-model results, comparison boundaries, and reliability analyses.
+| Partition | Total | Benign | Melanoma |
+|---|---:|---:|---:|
+| Training | 26,499 | 26,032 | 467 |
+| Validation (Fold 0) | 6,627 | 6,510 | 117 |
 
-## 9. Core experiment configurations
+Known-patient overlap between the two partitions is zero. Fold 0 is a
+validation fold, not an independent test set or external cohort.
 
-The deep experiments are defined by `configs/resnet18.yaml`,
-`configs/convnext_image.yaml`, and `configs/convnext_metadata.yaml`. Shared
-settings are: 224x224 images, batch size 32, AdamW, learning rate `1e-4`,
-weight decay `1e-4`, weighted BCE, training-derived
-`pos_weight = 55.74304068522484`, maximum 10 epochs, patience 3, validation
-ROC-AUC checkpoint selection, and primary threshold 0.5.
+## Data Integrity Audit
 
-Observed training duration and selected checkpoints were:
+The exact-content audit computed SHA-256 over the bytes of every source JPEG:
 
-| Model | Epochs executed | Best checkpoint epoch |
-|---|---:|---:|
-| B0 | 7 | 4 |
-| M1 | 7 | 4 |
-| M2 | 10 | 8 |
+- 33,126 records hashed
+- 32,693 unique hashes
+- 433 duplicate hash groups
+- 866 records involved in exact duplicate pairs
 
-M2 completed all 10 configured epochs; epoch 8 was the selected checkpoint,
-not an early-stopping epoch.
+All duplicate groups belong to the same patient, split, and target. There are
+zero exact train-validation duplicate groups and zero conflicting-target
+duplicate groups. This audit detects byte-identical files only and does not
+rule out perceptual near-duplicates.
 
-## 10. Hyperparameter-selection note
+## Preprocessing and Training Configuration
 
-- No systematic grid search, systematic random search, or Bayesian search was performed.
-- Deep settings were deliberately matched to reduce optimisation-policy confounding.
-- `pos_weight` was derived from training-partition class counts.
-- Early stopping and validation checkpointing controlled effective training duration.
-- Phase I thresholds from 0.1 to 0.9 were post-hoc behavioural analysis, not tuning.
-- Future systematic tuning would require patient-grouped inner validation or nested cross-validation.
+B0, M1, and M2 share the following controlled protocol:
 
-## 11. Evaluation metrics
+- source: 512x512 JPEG
+- network preprocessing: 224x224 RGB
+- train-only augmentation: horizontal flip `p=0.5`, vertical flip `p=0.5`,
+  rotation up to 15 degrees, and brightness/contrast jitter of 0.10
+- validation: deterministic resize and ImageNet normalisation
+- batch size 32
+- ImageNet `IMAGENET1K_V1` pretrained weights and full fine-tuning
+- AdamW, learning rate `1e-4`, weight decay `1e-4`, and no LR scheduler
+- weighted BCE with `pos_weight = 55.74304068522484`
+- maximum 10 epochs, patience 3, and validation ROC-AUC checkpoint selection
+- automatic mixed precision (AMP) and seed 42
 
-Evaluation reports ROC-AUC, Average Precision (AP), accuracy, balanced
-accuracy, precision, sensitivity, specificity, F1, and confusion matrices.
-Threshold-dependent primary results use the common threshold 0.5.
+These are shared controlled experimental settings. They were not obtained
+through systematic grid, random, or Bayesian hyperparameter optimisation. The
+positive-class weight is derived only from training counts:
+`26,032 / 467 = 55.74304068522484`.
 
-## 12. Key final results
+Threshold 0.5 is the common primary evaluation threshold. The threshold grid
+from 0.1 to 0.9 is post-hoc behavioural analysis, not threshold tuning.
 
-Rounded display values below come only from
-`outputs/final/tables/main_model_results.csv`.
+## Model Rationale
+
+ResNet18 is the conventional residual CNN baseline. ConvNeXt-Tiny is a
+modernised convolutional architecture. Keeping the data, transforms, loss,
+optimiser, training policy, and evaluation fixed makes B0 -> M1 more
+interpretable than changing architecture and imbalance handling together.
+
+M1 and M2 share the ConvNeXt backbone design; M2 adds only a small metadata
+branch.
+
+| Model | Parameters |
+|---|---:|
+| B0 | 11,177,025 |
+| M1 | 27,820,897 |
+| M2 | 27,821,313 |
+
+M2 therefore adds 416 parameters relative to M1.
+
+## Metadata Fusion
+
+M2 uses `age_approx`, `sex`, and `anatom_site_general_challenge` while
+excluding leakage-sensitive identifiers and outcome fields. The metadata
+preprocessor is fitted only on the training partition: age receives median
+imputation and standardisation, categorical fields are encoded, and unknown
+categories are handled without changing the learned feature dimension. The
+fitted transformation is then applied to both training and validation data.
+
+The processed metadata vector has 11 dimensions. Its branch is
+`11 -> 32 -> GELU -> Dropout(0.20)`. The resulting 32-dimensional embedding is
+concatenated with the 768-dimensional ConvNeXt image feature to form an
+800-dimensional fused vector, followed by an `800 -> 1` raw-logit head.
+
+M2 starts independently from ImageNet-pretrained ConvNeXt weights. It does not
+start from the trained M1 checkpoint.
+
+## Evaluation
+
+Primary and summary metrics are ROC-AUC, Average Precision (AP), sensitivity,
+specificity, precision, F1, and confusion matrices. Reliability analyses cover
+the 0.1-0.9 threshold sweep, M1/M2 disagreement, paired patient-level
+bootstrap, subgroup behaviour, failure cases, and Grad-CAM.
+
+M2 Grad-CAM targets the raw melanoma logit in the image branch while supplying
+metadata to the forward pass. It is therefore image-branch attribution
+conditioned on metadata. It is not a causal explanation and does not explain
+the metadata branch.
+
+## Main Results
+
+The frozen primary-threshold results are:
 
 | Model | ROC-AUC | AP | Sensitivity | Specificity | F1 |
 |---|---:|---:|---:|---:|---:|
-| H0 | 0.657 | 0.039 | 0.009 | 0.998 | 0.016 |
-| H1 | 0.624 | 0.036 | 0.145 | 0.951 | 0.076 |
-| B0 | 0.864 | 0.119 | 0.795 | 0.768 | 0.108 |
-| M1 | 0.901 | 0.169 | 0.974 | 0.628 | 0.086 |
-| M2 | 0.897 | 0.165 | 0.897 | 0.736 | 0.108 |
+| H0 | 0.657022 | 0.038592 | 0.008547 | 0.998464 | 0.015625 |
+| H1 | 0.624392 | 0.036316 | 0.145299 | 0.951459 | 0.075556 |
+| B0 | 0.864276 | 0.119273 | 0.794872 | 0.767588 | 0.107951 |
+| M1 | 0.900848 | 0.169406 | 0.974359 | 0.627650 | 0.085876 |
+| M2 | 0.897446 | 0.165292 | 0.897436 | 0.735945 | 0.108192 |
 
-## 13. Reliability analyses
+Threshold-dependent metrics use the primary threshold 0.5. Weighting improves
+Logistic Regression minority detection but not its ranking metrics. Under the
+matched deep protocol, M1 improves ranking and sensitivity over B0. M2 does
+not improve the observed ROC-AUC or AP over M1, but at threshold 0.5 it has
+higher specificity and lower sensitivity. No model is universally best across
+all metrics and operating requirements.
 
-The final evidence includes threshold behaviour, M1/M2 disagreement,
-exploratory subgroup analysis, paired patient-level bootstrap resampling,
-failure review, Grad-CAM, and exact-content integrity analysis. Bootstrap
-results quantify internal patient-level uncertainty, not external validation.
-Subgroup results do not establish fairness conclusions. M2 Grad-CAM is
-image-branch melanoma-logit attribution conditioned on metadata; it does not
-explain the metadata contribution or establish causality.
+## Reproducibility
 
-## 14. Checkpoint and large-file policy
+### 1. Environment
 
-Large neural checkpoints may remain Git-ignored. Tracked reproducibility
-evidence includes experiment configurations, resolved configs, training
-histories, metrics, predictions, and checkpoint hashes/manifests. No remote
-checkpoint download location is asserted.
+From the repository root on Windows with Python 3.12:
 
-## 15. Reproducibility limitations
+```powershell
+py -3.12 -m venv .venv
+.\.venv\Scripts\python.exe -m pip install --upgrade pip
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+```
 
-- Results use one fixed patient-aware validation fold.
-- Fold 0 was used for checkpoint selection and final reported metrics.
-- No independent test cohort was evaluated.
-- No external validation was performed.
-- No final cross-validation estimate was produced.
-- No systematic hyperparameter search was performed.
-- Deterministic seeds and configuration improve reproducibility but do not guarantee bitwise determinism.
+The audited environment used PyTorch `2.11.0+cu128` and torchvision
+`0.26.0+cu128`. `requirements.txt` pins direct dependencies but does not encode
+the CUDA wheel index; select the appropriate official PyTorch build for the
+target hardware rather than treating `+cu128` as portable.
+
+### 2. Dataset placement and split preparation
+
+Place the external files at `data/train.csv` and `data/train_images/*.jpg`,
+then start Jupyter:
+
+```powershell
+.\.venv\Scripts\python.exe -m jupyter lab
+```
+
+Run `notebooks/00_data_audit.ipynb` to reproduce dataset checks, figures, and
+the patient-aware fold manifest. This workflow requires the external dataset.
+
+### 3. H0/H1 baseline workflow
+
+Run `notebooks/01_logistic_regression.ipynb` after the data-audit notebook.
+It uses `configs/logistic_unweighted.yaml` and
+`configs/logistic_weighted.yaml`, the tracked fold/subset manifests, and the
+external JPEGs. There is no separate Logistic Regression CLI.
+
+### 4. Deep training and evaluation
+
+Each `--fit` command trains the configured model, selects the checkpoint by
+validation ROC-AUC, evaluates Fold 0, and saves its logs, metrics, predictions,
+and figures. These commands require the external dataset and suitable compute.
+
+```powershell
+.\.venv\Scripts\python.exe -m src.train --config configs/resnet18.yaml --fit
+.\.venv\Scripts\python.exe -m src.train --config configs/convnext_image.yaml --fit
+.\.venv\Scripts\python.exe -m src.train --config configs/convnext_metadata.yaml --fit
+```
+
+### 5. Reliability analysis and final notebook
+
+After the deep predictions and checkpoints exist, the implemented order is:
+
+```powershell
+.\.venv\Scripts\python.exe -m src.analysis --project-root . --bootstrap-iterations 1000 --bootstrap-seed 42
+.\.venv\Scripts\python.exe -m src.explainability --project-root . --cases-per-category 3
+.\.venv\Scripts\python.exe -m src.technical_audit --project-root .
+.\.venv\Scripts\python.exe -m src.final_tables --project-root .
+.\.venv\Scripts\python.exe -m src.results_notebook --output notebooks/02_results_analysis.ipynb
+.\.venv\Scripts\python.exe -m src.publication_assets --root .
+```
+
+These commands regenerate tracked outputs and should be used only for a full
+reproduction, not routine inspection of the frozen submission. Analysis and
+Grad-CAM require the external JPEGs; Grad-CAM and notebook hash verification
+also require the matching ignored checkpoints.
+
+A clean clone can inspect the tracked configs, logs, predictions, tables,
+figures, executed notebooks, and report without the dataset. The current
+`notebooks/02_results_analysis.ipynb` is already executed and stores the final
+analysis outputs. Running `src.results_notebook` recreates its unexecuted
+structure and should not overwrite the submitted notebook during inspection.
+
+Tests use synthetic fixtures and do not require the SIIM-ISIC files:
+
+```powershell
+.\.venv\Scripts\python.exe -m pytest -v
+```
+
+## Repository Structure
+
+```text
+configs/      Experiment configurations for H0, H1, B0, M1, and M2
+data/         Tracked split/subset manifests and external-data instructions
+logs/         Frozen experiment configurations, histories, metrics, and logs
+notebooks/    Executed data-audit, Logistic Regression, and results notebooks
+outputs/      Predictions, analyses, figures, tables, and provenance manifests
+report/       Final report PDF and supporting evidence notes
+src/          Splitting, preprocessing, modelling, training, analysis, and QC code
+tests/        Unit and integration tests using synthetic fixtures
+```
+
+## Final Report
+
+The submitted report is
+[`report/EEEM068_LSA_Melanoma_Final_Report_Revised.pdf`](report/EEEM068_LSA_Melanoma_Final_Report_Revised.pdf).
+No complete LaTeX report source was supplied; the `.tex` files under
+`outputs/final/tables/publication/` are generated table fragments only.
+
+## Limitations
+
+- Fold 0 is a fixed patient-aware validation fold, not an independent test set.
+- Fold 0 is also used for checkpoint selection and final reported metrics.
+- No external validation or full cross-validation performance estimate exists.
+- No systematic hyperparameter optimisation was performed.
+- Some subgroup analyses contain very few melanoma cases.
+- SHA-256 detects exact byte duplicates only, not perceptual near-duplicates.
+- Grad-CAM is non-causal, image-branch attribution conditioned on metadata.
+- Seed control improves reproducibility but does not guarantee bitwise-identical retraining.

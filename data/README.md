@@ -1,15 +1,22 @@
 # Data Directory
 
-This directory stores local dataset metadata and generated split files.
+Only small derived reproducibility manifests are tracked here:
 
-The raw SIIM-ISIC image dataset is not stored in the Git repository.
+- `train_folds.csv` maps every `image_name` to one of five patient-aware folds.
+  Fold 0 is validation; folds 1-4 are training.
+- `lr_train_subset.csv` records the stratified 5,000-image training subset used
+  by the H0/H1 Logistic Regression baselines.
 
-Expected local structure:
+The external SIIM-ISIC 2020 source data is intentionally not tracked. For a
+dataset-dependent run, place it at:
 
+```text
 data/
-├── train.csv
-├── train_folds.csv
-└── train_images/
-    └── *.jpg
+|-- train.csv
+`-- train_images/
+    `-- <image_name>.jpg
+```
 
-Raw images are excluded through `.gitignore`.
+The expected source images are 512x512 JPEG files. Raw images, original input
+metadata, DICOM files, dataset archives, and large array formats are excluded
+through `.gitignore`.
