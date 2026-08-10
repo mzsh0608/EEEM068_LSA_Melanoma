@@ -1,0 +1,22 @@
+start_timestamp=2026-08-10T05:26:05.363089+00:00
+git_commit=0935f07a7f25a6ac0ec4d29b10e0b9ac29b75a15
+experiment_id=B0
+device=cuda
+gpu_name=NVIDIA GeForce RTX 3080 Laptop GPU
+data_counts=train:26499 validation:6627 train_negative:26032 train_positive:467 validation_negative:6510 validation_positive:117
+pos_weight=55.74304068522484
+configuration=architecture:resnet18 weights:IMAGENET1K_V1 batch_size:32 num_workers:4 optimizer:adamw learning_rate:0.0001 weight_decay:0.0001 amp_active:True max_epochs:10 patience:3
+epoch=1 train_loss=1.06152465 val_loss=0.94329156 roc_auc=0.83829414 seconds=174.64
+epoch=2 train_loss=0.91672991 val_loss=1.10973684 roc_auc=0.82842832 seconds=69.04
+epoch=3 train_loss=0.88857294 val_loss=1.03912356 roc_auc=0.84221119 seconds=69.94
+epoch=4 train_loss=0.86598455 val_loss=1.02834676 roc_auc=0.86427587 seconds=68.53
+epoch=5 train_loss=0.83751831 val_loss=1.18757144 roc_auc=0.84640592 seconds=68.21
+epoch=6 train_loss=0.84316217 val_loss=1.16861664 roc_auc=0.83924928 seconds=66.96
+epoch=7 train_loss=0.81197467 val_loss=1.25727008 roc_auc=0.82235745 seconds=65.52
+best_epoch=4 best_metric=0.86427587
+early_stopping_triggered=True
+actual_epochs=7 total_seconds=593.76
+end_timestamp=2026-08-10T05:35:59.247759+00:00
+artifacts=checkpoint:C:\Users\test\Documents\EEEM068_LSA_Melanoma\outputs\checkpoints\B0_resnet18_best.pt predictions:C:\Users\test\Documents\EEEM068_LSA_Melanoma\outputs\predictions\B0_resnet18.csv metrics:C:\Users\test\Documents\EEEM068_LSA_Melanoma\logs\B0_resnet18\metrics.json history:C:\Users\test\Documents\EEEM068_LSA_Melanoma\logs\B0_resnet18\history.csv
+warnings=none
+generated_artifacts=config:C:\Users\test\Documents\EEEM068_LSA_Melanoma\logs\B0_resnet18\config.json environment:C:\Users\test\Documents\EEEM068_LSA_Melanoma\logs\B0_resnet18\environment.json training_curves:C:\Users\test\Documents\EEEM068_LSA_Melanoma\outputs\figures\B0_training_curves.png confusion_matrix:C:\Users\test\Documents\EEEM068_LSA_Melanoma\outputs\figures\B0_confusion_matrix.png roc_pr_curve:C:\Users\test\Documents\EEEM068_LSA_Melanoma\outputs\figures\B0_roc_pr.png

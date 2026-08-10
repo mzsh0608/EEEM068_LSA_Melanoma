@@ -1,0 +1,132 @@
+{
+  "configured": {
+    "experiment_id": "B0",
+    "experiment_name": "resnet18_weighted_bce",
+    "seed": 42,
+    "validation_fold": 0,
+    "model": {
+      "architecture": "resnet18",
+      "pretrained": true,
+      "weights": "IMAGENET1K_V1",
+      "use_metadata": false,
+      "fine_tune_all": true,
+      "num_outputs": 1
+    },
+    "data": {
+      "image_size": 224,
+      "batch_size": 32,
+      "num_workers": 4,
+      "pin_memory": true,
+      "persistent_workers": true,
+      "drop_last": false,
+      "train_shuffle": true
+    },
+    "transforms": {
+      "resize_interpolation": "bilinear",
+      "horizontal_flip_probability": 0.5,
+      "vertical_flip_probability": 0.5,
+      "rotation_degrees": 15,
+      "brightness": 0.1,
+      "contrast": 0.1,
+      "normalization_mean": [
+        0.485,
+        0.456,
+        0.406
+      ],
+      "normalization_std": [
+        0.229,
+        0.224,
+        0.225
+      ]
+    },
+    "training": {
+      "epochs": 10,
+      "optimizer": "adamw",
+      "learning_rate": 0.0001,
+      "weight_decay": 0.0001,
+      "loss": "weighted_bce",
+      "scheduler": "none",
+      "amp": true,
+      "early_stopping": {
+        "enabled": true,
+        "patience": 3
+      }
+    },
+    "evaluation": {
+      "threshold": 0.5,
+      "checkpoint_metric": "roc_auc",
+      "checkpoint_mode": "max"
+    },
+    "outputs": {
+      "experiment_directory": "logs/B0_resnet18",
+      "checkpoint": "outputs/checkpoints/B0_resnet18_best.pt",
+      "predictions": "outputs/predictions/B0_resnet18.csv",
+      "training_history": "logs/B0_resnet18/history.csv",
+      "metrics": "logs/B0_resnet18/metrics.json",
+      "environment": "logs/B0_resnet18/environment.json",
+      "training_log": "logs/B0_resnet18/training.log",
+      "training_curves": "outputs/figures/B0_training_curves.png",
+      "confusion_matrix": "outputs/figures/B0_confusion_matrix.png",
+      "roc_pr_curve": "outputs/figures/B0_roc_pr.png"
+    }
+  },
+  "resolved": {
+    "experiment_id": "B0",
+    "experiment_name": "resnet18_weighted_bce",
+    "architecture": "resnet18",
+    "weights": "IMAGENET1K_V1",
+    "fine_tune_all": true,
+    "seed": 42,
+    "validation_fold": 0,
+    "train_samples": 26499,
+    "validation_samples": 6627,
+    "train_negative": 26032,
+    "train_positive": 467,
+    "validation_negative": 6510,
+    "validation_positive": 117,
+    "patient_overlap": 0,
+    "pos_weight": 55.74304068522484,
+    "image_size": 224,
+    "batch_size": 32,
+    "num_workers": 4,
+    "persistent_workers": true,
+    "optimizer": "adamw",
+    "learning_rate": 0.0001,
+    "weight_decay": 0.0001,
+    "loss": "weighted_bce",
+    "amp_requested": true,
+    "amp_active": true,
+    "max_epochs": 10,
+    "early_stopping_enabled": true,
+    "early_stopping_patience": 3,
+    "threshold": 0.5,
+    "checkpoint_metric": "roc_auc",
+    "checkpoint_mode": "max",
+    "preprocessing": {
+      "color_mode": "RGB",
+      "resize": [
+        224,
+        224
+      ],
+      "resize_interpolation": "bilinear",
+      "normalization_mean": [
+        0.485,
+        0.456,
+        0.406
+      ],
+      "normalization_std": [
+        0.229,
+        0.224,
+        0.225
+      ],
+      "validation_augmentation": null
+    },
+    "training_augmentation": {
+      "horizontal_flip_probability": 0.5,
+      "vertical_flip_probability": 0.5,
+      "rotation_degrees": 15,
+      "brightness": 0.1,
+      "contrast": 0.1
+    }
+  }
+}

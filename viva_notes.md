@@ -114,37 +114,127 @@ rather than different validation samples.
 
 ## 4. CNNs
 
-TODO
+CNNs learn local image patterns with shared filters and build increasingly
+abstract spatial features across layers. This preserves image structure,
+unlike flattening grayscale pixels for Logistic Regression.
 
 ---
 
 ## 5. ResNet18
 
-TODO
+### Why ResNet18?
+
+ResNet18 is a relatively compact, established CNN that supports ImageNet
+transfer learning and is computationally practical for a controlled baseline.
+It tests whether learned hierarchical RGB features improve over the flattened
+grayscale H0/H1 representation without introducing a large architecture.
+
+### What is a residual connection?
+
+A residual block learns a transformation that is added to its input through a
+skip connection. This gives gradients a direct route through the network and
+helps deeper networks optimise without requiring every block to relearn an
+identity mapping.
+
+### Transfer learning and full fine-tuning
+
+B0 started from `IMAGENET1K_V1` weights, replaced the 1,000-class classifier
+with one binary logit, and updated the complete network. Pretraining supplies
+general visual features; full fine-tuning adapts both those features and the
+new classifier to lesion images.
 
 ---
 
 ## 6. ConvNeXt
 
-TODO
+ConvNeXt-Tiny is reserved for M1. It provides a meaningful controlled next
+experiment because the fixed fold, resolution, preprocessing, weighted loss,
+optimizer framework, and evaluation can remain unchanged while the principal
+changed variable is the image architecture.
 
 ---
 
 ## 7. BCEWithLogitsLoss
 
-TODO
+### Why one logit and no sigmoid layer?
+
+Binary classification needs one score: a positive logit favours melanoma and
+a negative logit favours benign. `BCEWithLogitsLoss` combines sigmoid and
+binary cross-entropy in a numerically stable calculation, so the model must
+provide raw logits. Sigmoid is applied later when evaluation probabilities are
+needed.
+
+### Forward and backward passes
+
+The forward pass maps a batch of images to logits and computes the weighted
+loss against its labels. Backpropagation calculates the gradient of that loss
+for every trainable parameter, after which AdamW updates the parameters.
 
 ---
 
 ## 8. Weighted BCE
 
-TODO
+### Why weight the positive class?
+
+Only 467 of 26,499 training examples are melanoma. B0 used
+`pos_weight = 26032 / 467 = 55.74304068522484`, so errors on positive training
+examples contribute more strongly to the objective. This changes optimisation;
+it is not threshold tuning or oversampling.
+
+### Why is Fold 0 excluded from weighting?
+
+`pos_weight` describes the training distribution and affects gradient updates.
+Using Fold 0 labels in it would allow validation information to influence
+fitting. The 6,627 Fold 0 samples were used only for epoch validation,
+checkpoint selection, and final evaluation.
 
 ---
 
-## 9. Evaluation metrics
+## 9. Evaluation metrics and B0 evidence
 
-TODO
+### Why AdamW and AMP?
+
+AdamW provides adaptive parameter updates while applying decoupled weight
+decay; B0 used learning rate and weight decay of 0.0001. On CUDA, AMP used
+autocast and gradient scaling to reduce computation and memory demand while
+protecting numerical stability.
+
+### Why checkpoint by ROC-AUC?
+
+ROC-AUC assesses ranking across thresholds and is less dominated by the large
+benign majority than raw accuracy. The criterion was declared before training.
+B0 therefore restored epoch 4, which had the highest validation ROC-AUC
+(0.864276), even though Average Precision happened to peak at epoch 6.
+
+### Why is accuracy misleading here?
+
+H0 achieved 0.9810 accuracy while detecting only 1 of 117 melanomas. B0 had
+lower accuracy (0.7681) but detected 93 melanomas, giving sensitivity 0.7949
+and balanced accuracy 0.7812. Accuracy alone rewards majority-class
+predictions in this imbalanced dataset.
+
+### What happened during B0 training?
+
+Training loss generally declined from 1.0615 to 0.8120. Validation ROC-AUC
+peaked at epoch 4 and then fell over epochs 5-7 while validation loss rose.
+Early stopping triggered after three non-improving epochs and restored epoch
+4. This pattern is consistent with overfitting or instability, but the
+fluctuations were not tested for statistical significance.
+
+### What did B0 show compared with H0/H1?
+
+B0 improved ROC-AUC to 0.8643 from 0.6570 (H0) and 0.6244 (H1), and Average
+Precision to 0.1193 from 0.0386 and 0.0363. At threshold 0.5 it found 93
+melanomas, versus 1 and 17, showing that the pretrained CNN did not collapse
+to near-all-benign predictions. The cost was 1,513 false positives,
+specificity of 0.7676, and precision of only 0.0579.
+
+### What limitations remained?
+
+B0 was evaluated on one fixed fold, without confidence intervals or external
+validation. Weighted BCE improved sensitivity but left a substantial
+sensitivity-specificity trade-off and low precision. No threshold was tuned,
+so the reported operating point remains the common predeclared threshold 0.5.
 
 ---
 

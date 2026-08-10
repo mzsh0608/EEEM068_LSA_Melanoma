@@ -49,3 +49,32 @@ Evaluation:
 - precision
 - F1
 - confusion matrix
+
+## B0 ResNet18 methodology
+
+- architecture: ResNet18
+- initial weights: ImageNet `IMAGENET1K_V1`
+- classifier replacement: one output logit with no model-side sigmoid
+- input: 224x224 RGB
+- fine-tuning: the complete network
+- validation: the same fixed patient-aware Fold 0 used by H0 and H1
+- training augmentation: horizontal and vertical flips, rotation up to
+  15 degrees, and brightness/contrast jitter of 0.10
+- validation preprocessing: deterministic resize only
+- normalization: ImageNet mean and standard deviation
+- loss: `BCEWithLogitsLoss` with positive-class weighting
+- training-only `pos_weight`: 26,032 / 467 = 55.74304068522484
+- optimizer: AdamW
+- learning rate: 0.0001
+- weight decay: 0.0001
+- scheduler: none
+- CUDA automatic mixed precision: enabled
+- maximum epochs: 10
+- early stopping: patience 3
+- checkpoint selection: maximum validation ROC-AUC
+- authoritative evaluation: reloaded best checkpoint on all 6,627 Fold 0
+  samples at the fixed threshold of 0.5
+
+Fold 0 labels were used for validation and checkpoint selection only. They
+were not used to calculate `pos_weight`, sample training data, or update model
+parameters.
