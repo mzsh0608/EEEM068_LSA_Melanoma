@@ -1,2 +1,89 @@
-# M2 - ConvNeXt-Tiny image + metadata configuration
-# Configuration will be added during model implementation.
+experiment_id: M2
+experiment_name: convnext_metadata
+
+seed: 42
+validation_fold: 0
+
+model:
+  architecture: convnext_tiny_metadata
+  backbone: convnext_tiny
+  pretrained: true
+  weights: IMAGENET1K_V1
+  use_metadata: true
+  fine_tune_all: true
+  num_outputs: 1
+  metadata_embedding_dim: 32
+  metadata_activation: gelu
+  metadata_dropout: 0.20
+
+metadata:
+  columns:
+    - age_approx
+    - sex
+    - anatom_site_general_challenge
+  numeric_columns:
+    - age_approx
+  categorical_columns:
+    - sex
+    - anatom_site_general_challenge
+  numeric_imputation: median
+  numeric_scaling: standard
+  categorical_missing_value: unknown
+  categorical_encoding: one_hot
+  handle_unknown: ignore
+
+data:
+  image_size: 224
+  batch_size: 32
+  num_workers: 4
+  pin_memory: true
+  persistent_workers: true
+  drop_last: false
+  train_shuffle: true
+
+transforms:
+  resize_interpolation: bilinear
+  horizontal_flip_probability: 0.5
+  vertical_flip_probability: 0.5
+  rotation_degrees: 15
+  brightness: 0.10
+  contrast: 0.10
+  normalization_mean:
+    - 0.485
+    - 0.456
+    - 0.406
+  normalization_std:
+    - 0.229
+    - 0.224
+    - 0.225
+
+training:
+  epochs: 10
+  optimizer: adamw
+  learning_rate: 0.0001
+  weight_decay: 0.0001
+  loss: weighted_bce
+  scheduler: none
+  amp: true
+  early_stopping:
+    enabled: true
+    patience: 3
+
+evaluation:
+  threshold: 0.5
+  checkpoint_metric: roc_auc
+  checkpoint_mode: max
+
+outputs:
+  experiment_directory: logs/M2_convnext_metadata
+  checkpoint: outputs/checkpoints/M2_convnext_metadata_best.pt
+  predictions: outputs/predictions/M2_convnext_metadata.csv
+  training_history: logs/M2_convnext_metadata/history.csv
+  metrics: logs/M2_convnext_metadata/metrics.json
+  environment: logs/M2_convnext_metadata/environment.json
+  training_log: logs/M2_convnext_metadata/training.log
+  metadata_preprocessor: logs/M2_convnext_metadata/metadata_preprocessor.joblib
+  metadata_summary: logs/M2_convnext_metadata/metadata_summary.json
+  training_curves: outputs/figures/M2_training_curves.png
+  confusion_matrix: outputs/figures/M2_confusion_matrix.png
+  roc_pr_curve: outputs/figures/M2_roc_pr.png

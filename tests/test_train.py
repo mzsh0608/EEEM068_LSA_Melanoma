@@ -7,6 +7,7 @@ from torch.utils.data import DataLoader, Dataset
 
 from src.train import (
     fit_model,
+    forward_batch,
     parse_args,
     run_full_experiment,
     train_one_epoch,
@@ -30,6 +31,29 @@ class TinyDataset(Dataset):
         }
 
 
+class TinyMetadataDataset(TinyDataset):
+    def __getitem__(self, index):
+        sample = super().__getitem__(index)
+        sample["metadata"] = torch.tensor(
+            [float(index), float(index % 2)],
+            dtype=torch.float32,
+        )
+        return sample
+
+
+class TinyMetadataModel(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.image = nn.Sequential(nn.Flatten(), nn.Linear(3 * 8 * 8, 4))
+        self.metadata = nn.Linear(2, 2)
+        self.classifier = nn.Linear(6, 1)
+
+    def forward(self, image, metadata):
+        return self.classifier(
+            torch.cat([self.image(image), self.metadata(metadata)], dim=1)
+        )
+
+
 def _components(batch_size=1):
     loader = DataLoader(TinyDataset(), batch_size=batch_size, shuffle=False)
     model = nn.Sequential(nn.Flatten(), nn.Linear(3 * 8 * 8, 1))
@@ -50,6 +74,48 @@ def test_train_one_epoch_preserves_batch_dimension():
     )
 
     assert loss > 0
+
+
+def test_forward_batch_supports_image_only_and_metadata_models():
+    image_batch = next(iter(DataLoader(TinyDataset(), batch_size=1)))
+    metadata_batch = next(
+        iter(DataLoader(TinyMetadataDataset(), batch_size=1))
+    )
+    image_model = nn.Sequential(nn.Flatten(), nn.Linear(3 * 8 * 8, 1))
+    metadata_model = TinyMetadataModel()
+
+    image_output = forward_batch(
+        image_model,
+        image_batch,
+        torch.device("cpu"),
+    )
+    metadata_output = forward_batch(
+        metadata_model,
+        metadata_batch,
+        torch.device("cpu"),
+    )
+
+    assert image_output.shape == (1, 1)
+    assert metadata_output.shape == (1, 1)
+
+
+def test_metadata_aware_training_runs_backward_and_optimizer_step():
+    loader = DataLoader(TinyMetadataDataset(), batch_size=1, shuffle=False)
+    model = TinyMetadataModel()
+    criterion = nn.BCEWithLogitsLoss()
+    optimizer = torch.optim.AdamW(model.parameters(), lr=0.001)
+    original = model.classifier.weight.detach().clone()
+
+    loss = train_one_epoch(
+        model,
+        loader,
+        criterion,
+        optimizer,
+        torch.device("cpu"),
+    )
+
+    assert loss > 0
+    assert not torch.equal(model.classifier.weight.detach(), original)
 
 
 def test_validate_one_epoch_returns_metrics_and_predictions():
@@ -145,11 +211,14 @@ def test_full_experiment_creates_required_artifacts(tmp_path):
         baseline_directory / "H1_logistic_weighted.csv", index=False
     )
     baseline.to_csv(baseline_directory / "B0_resnet18.csv", index=False)
+    baseline.to_csv(
+        baseline_directory / "M1_convnext_image.csv", index=False
+    )
 
-    experiment_directory = tmp_path / "logs" / "M1_convnext_image"
+    experiment_directory = tmp_path / "logs" / "M2_convnext_metadata"
     config = {
-        "experiment_id": "M1",
-        "experiment_name": "test_convnext_image",
+        "experiment_id": "M2",
+        "experiment_name": "test_convnext_metadata",
         "seed": 42,
         "validation_fold": 0,
         "model": {

@@ -26,12 +26,14 @@ class MelanomaDataset(Dataset):
         dataframe,
         transform=None,
         metadata_columns=None,
+        metadata_array=None,
         use_metadata=False,
     ):
         self.dataframe = dataframe.copy().reset_index(drop=True)
         self.transform = transform
         self.metadata_columns = list(metadata_columns or [])
         self.use_metadata = use_metadata
+        self.metadata_array = None
 
         missing = REQUIRED_COLUMNS.difference(self.dataframe.columns)
         if missing:
@@ -50,18 +52,31 @@ class MelanomaDataset(Dataset):
             raise ValueError("target must contain only 0 and 1.")
 
         if self.use_metadata:
-            if not self.metadata_columns:
+            if metadata_array is not None:
+                values = np.asarray(metadata_array, dtype=np.float32)
+                if values.ndim != 2:
+                    raise ValueError("metadata_array must be two-dimensional.")
+                if values.shape[0] != len(self.dataframe):
+                    raise ValueError(
+                        "metadata_array rows must match the dataframe."
+                    )
+                if not np.isfinite(values).all():
+                    raise ValueError("metadata_array must contain finite values.")
+                self.metadata_array = values
+            elif not self.metadata_columns:
                 raise ValueError(
-                    "metadata_columns are required when use_metadata=True."
+                    "metadata_array or metadata_columns are required "
+                    "when use_metadata=True."
                 )
-            missing_metadata = set(self.metadata_columns).difference(
-                self.dataframe.columns
-            )
-            if missing_metadata:
-                raise ValueError(
-                    "Missing metadata columns: "
-                    f"{sorted(missing_metadata)}"
+            else:
+                missing_metadata = set(self.metadata_columns).difference(
+                    self.dataframe.columns
                 )
+                if missing_metadata:
+                    raise ValueError(
+                        "Missing metadata columns: "
+                        f"{sorted(missing_metadata)}"
+                    )
 
     def __len__(self):
         return len(self.dataframe)
@@ -89,8 +104,10 @@ class MelanomaDataset(Dataset):
         }
 
         if self.use_metadata:
-            values = row[self.metadata_columns].to_numpy(
-                dtype=np.float32
+            values = (
+                self.metadata_array[index]
+                if self.metadata_array is not None
+                else row[self.metadata_columns].to_numpy(dtype=np.float32)
             )
             sample["metadata"] = torch.as_tensor(
                 values,

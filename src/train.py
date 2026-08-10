@@ -25,6 +25,13 @@ from src.evaluate import (
     save_metrics_json,
 )
 from src.losses import build_loss
+from src.metadata import (
+    CATEGORICAL_COLUMNS,
+    METADATA_COLUMNS,
+    NUMERIC_COLUMNS,
+    prepare_metadata,
+    save_metadata_artifacts,
+)
 from src.models import build_model, get_final_classifier
 from src.transforms import get_train_transforms, get_val_transforms
 from src.utils import (
@@ -71,6 +78,18 @@ def _check_binary_output(raw_logits, batch_size):
     return raw_logits.squeeze(-1)
 
 
+def forward_batch(model, batch, device):
+    """Run an image-only or image-metadata model from one collated batch."""
+    images = batch["image"].to(device, non_blocking=True)
+    if "metadata" not in batch:
+        return model(images)
+
+    metadata = batch["metadata"].to(device, non_blocking=True)
+    if not torch.isfinite(metadata).all():
+        raise RuntimeError("Non-finite metadata detected.")
+    return model(images, metadata)
+
+
 def train_one_epoch(
     model,
     loader,
@@ -90,7 +109,6 @@ def train_one_epoch(
         raise ValueError("A GradScaler is required when CUDA AMP is active.")
 
     for batch in loader:
-        images = batch["image"].to(device, non_blocking=True)
         targets = batch["target"].to(device, non_blocking=True)
         optimizer.zero_grad(set_to_none=True)
 
@@ -98,7 +116,7 @@ def train_one_epoch(
             device_type=device.type,
             enabled=use_amp,
         ):
-            raw_logits = model(images)
+            raw_logits = forward_batch(model, batch, device)
             logits = _check_binary_output(raw_logits, targets.shape[0])
             loss = criterion(logits, targets)
 
@@ -141,9 +159,8 @@ def validate_one_epoch(
 
     with torch.no_grad():
         for batch in loader:
-            images = batch["image"].to(device, non_blocking=True)
             targets = batch["target"].to(device, non_blocking=True)
-            raw_logits = model(images)
+            raw_logits = forward_batch(model, batch, device)
             logits = _check_binary_output(raw_logits, targets.shape[0])
             loss = criterion(logits, targets)
             probabilities = torch.sigmoid(logits)
@@ -276,6 +293,23 @@ def build_resolved_config(config, experiment):
             "contrast": config["transforms"]["contrast"],
         },
     }
+    metadata_preparation = experiment.get("metadata_preparation")
+    if metadata_preparation is not None:
+        model_config = config["model"]
+        resolved["metadata"] = {
+            "enabled": True,
+            "columns": list(config["metadata"]["columns"]),
+            "dimension": int(metadata_preparation.train_matrix.shape[1]),
+            "embedding_dimension": int(
+                model_config["metadata_embedding_dim"]
+            ),
+            "activation": model_config["metadata_activation"],
+            "dropout": float(model_config["metadata_dropout"]),
+            "fit_partition": "training_only",
+            "m1_checkpoint_used_for_initialization": False,
+            "fusion": "convnext_image_embedding_plus_metadata_embedding",
+            "preprocessing_summary": metadata_preparation.summary,
+        }
     return {"configured": config, "resolved": resolved}
 
 
@@ -363,7 +397,7 @@ def plot_roc_pr_comparison(prediction_files, output_path):
         precision, recall, _ = precision_recall_curve(
             frame["target"], frame["probability"]
         )
-        line_width = 2.2 if label.startswith(("B0", "M1")) else 1.3
+        line_width = 2.2 if label.startswith(("M1", "M2")) else 1.3
         axes[0].plot(
             false_positive_rate,
             true_positive_rate,
@@ -486,6 +520,11 @@ def fit_model(
             "configuration="
             f"architecture:{run_metadata.get('architecture')} "
             f"weights:{run_metadata.get('weights')} "
+            f"metadata_enabled:{bool(run_metadata.get('metadata'))} "
+            f"metadata_dimension:{(run_metadata.get('metadata') or {}).get('dimension')} "
+            f"metadata_fit:{(run_metadata.get('metadata') or {}).get('fit_partition')} "
+            "m1_checkpoint_used_for_initialization:"
+            f"{(run_metadata.get('metadata') or {}).get('m1_checkpoint_used_for_initialization')} "
             f"batch_size:{run_metadata.get('batch_size')} "
             f"num_workers:{run_metadata.get('num_workers')} "
             f"optimizer:{run_metadata.get('optimizer')} "
@@ -611,6 +650,17 @@ def fit_model(
         device,
         threshold=threshold,
     )
+    metadata_columns = (run_metadata.get("metadata") or {}).get("columns")
+    if metadata_columns:
+        validation_metadata = val_loader.dataset.dataframe.loc[
+            :, ["image_name", *metadata_columns]
+        ]
+        final_predictions = final_predictions.merge(
+            validation_metadata,
+            on="image_name",
+            how="left",
+            validate="one_to_one",
+        )
     total_seconds = time.perf_counter() - fit_started
     final_metrics.update({
         "best_epoch": int(best_epoch),
@@ -674,12 +724,10 @@ def build_experiment(
     model_config = config["model"]
     training_config = config["training"]
 
-    if model_config.get("use_metadata", False):
-        raise ValueError("Metadata models are not implemented in Phase E.")
     if not data_config.get("train_shuffle", True):
-        raise ValueError("Phase E requires shuffled training DataLoaders.")
+        raise ValueError("Training requires shuffled training DataLoaders.")
     if str(training_config.get("scheduler", "none")).lower() != "none":
-        raise ValueError("Only scheduler=none is supported in Phase E.")
+        raise ValueError("Only scheduler=none is supported.")
 
     train_df, val_df = load_fold_dataframes(
         project_root / "data" / "train.csv",
@@ -708,8 +756,50 @@ def build_experiment(
     )
     val_transform = get_val_transforms(**common_transforms)
 
-    train_dataset = MelanomaDataset(train_df, transform=train_transform)
-    val_dataset = MelanomaDataset(val_df, transform=val_transform)
+    metadata_preparation = None
+    use_metadata = bool(model_config.get("use_metadata", False))
+    if use_metadata:
+        metadata_config = config.get("metadata", {})
+        if metadata_config.get("columns") != METADATA_COLUMNS:
+            raise ValueError(
+                "M2 metadata columns must exactly match the approved whitelist."
+            )
+        if metadata_config.get("numeric_columns") != NUMERIC_COLUMNS:
+            raise ValueError("M2 numeric metadata must be age_approx only.")
+        if (
+            metadata_config.get("categorical_columns")
+            != CATEGORICAL_COLUMNS
+        ):
+            raise ValueError("M2 categorical metadata must be sex and site.")
+        required_policies = {
+            "numeric_imputation": "median",
+            "numeric_scaling": "standard",
+            "categorical_missing_value": "unknown",
+            "categorical_encoding": "one_hot",
+            "handle_unknown": "ignore",
+        }
+        for key, value in required_policies.items():
+            if metadata_config.get(key) != value:
+                raise ValueError(
+                    f"Unsupported metadata policy {key}: "
+                    f"{metadata_config.get(key)}"
+                )
+        metadata_preparation = prepare_metadata(train_df, val_df)
+        train_dataset = MelanomaDataset(
+            train_df,
+            transform=train_transform,
+            use_metadata=True,
+            metadata_array=metadata_preparation.train_matrix,
+        )
+        val_dataset = MelanomaDataset(
+            val_df,
+            transform=val_transform,
+            use_metadata=True,
+            metadata_array=metadata_preparation.val_matrix,
+        )
+    else:
+        train_dataset = MelanomaDataset(train_df, transform=train_transform)
+        val_dataset = MelanomaDataset(val_df, transform=val_transform)
     num_workers = (
         int(num_workers_override)
         if num_workers_override is not None
@@ -731,6 +821,18 @@ def build_experiment(
         pretrained=model_config["pretrained"],
         weights_name=model_config["weights"],
         num_outputs=model_config["num_outputs"],
+        metadata_dim=(
+            metadata_preparation.train_matrix.shape[1]
+            if metadata_preparation is not None
+            else None
+        ),
+        metadata_embedding_dim=model_config.get(
+            "metadata_embedding_dim", 32
+        ),
+        metadata_activation=model_config.get(
+            "metadata_activation", "gelu"
+        ),
+        metadata_dropout=model_config.get("metadata_dropout", 0.20),
     )
     if not model_config.get("fine_tune_all", True):
         for parameter in model.parameters():
@@ -745,7 +847,7 @@ def build_experiment(
         device,
     )
     if str(training_config["optimizer"]).lower() != "adamw":
-        raise ValueError("Only AdamW is supported in Phase E.")
+        raise ValueError("Only AdamW is supported.")
     optimizer = torch.optim.AdamW(
         model.parameters(),
         lr=float(training_config["learning_rate"]),
@@ -764,6 +866,7 @@ def build_experiment(
         "criterion": criterion,
         "loss_info": loss_info,
         "optimizer": optimizer,
+        "metadata_preparation": metadata_preparation,
     }
 
 
@@ -771,6 +874,17 @@ def run_full_experiment(experiment, config, project_root):
     """Execute and persist one authoritative configured experiment."""
     project_root = Path(project_root)
     output_config = config["outputs"]
+    metadata_artifacts = None
+    metadata_preparation = experiment.get("metadata_preparation")
+    if metadata_preparation is not None:
+        metadata_artifacts = save_metadata_artifacts(
+            metadata_preparation,
+            _resolve_output(
+                project_root, output_config["metadata_preprocessor"]
+            ),
+            _resolve_output(project_root, output_config["metadata_summary"]),
+            validation_df=experiment["val_df"],
+        )
     resolved_config = build_resolved_config(config, experiment)
     run_metadata = dict(resolved_config["resolved"])
     run_metadata["git_commit"] = _git_head(project_root)
@@ -838,10 +952,18 @@ def run_full_experiment(experiment, config, project_root):
     )
     if config["experiment_id"] != "B0":
         prediction_files.append(("B0 ResNet18", b0_predictions))
-    current_label = (
-        "B0 ResNet18"
-        if config["experiment_id"] == "B0"
-        else f"{config['experiment_id']} ConvNeXt-Tiny"
+    m1_predictions = (
+        project_root / "outputs" / "predictions" / "M1_convnext_image.csv"
+    )
+    if config["experiment_id"] not in {"B0", "M1"}:
+        prediction_files.append(("M1 ConvNeXt-Tiny", m1_predictions))
+    labels = {
+        "B0": "B0 ResNet18",
+        "M1": "M1 ConvNeXt-Tiny",
+        "M2": "M2 ConvNeXt-Tiny + metadata",
+    }
+    current_label = labels.get(
+        config["experiment_id"], config["experiment_id"]
     )
     prediction_files.append((current_label, predictions_path))
     plot_roc_pr_comparison(prediction_files, roc_pr_path)
@@ -856,7 +978,9 @@ def run_full_experiment(experiment, config, project_root):
             f"environment:{_resolve_output(project_root, output_config['environment'])} "
             f"training_curves:{training_curves_path} "
             f"confusion_matrix:{confusion_matrix_path} "
-            f"roc_pr_curve:{roc_pr_path}\n"
+            f"roc_pr_curve:{roc_pr_path} "
+            f"metadata_preprocessor:{metadata_artifacts[0] if metadata_artifacts else None} "
+            f"metadata_summary:{metadata_artifacts[1] if metadata_artifacts else None}\n"
         )
 
     return result
@@ -877,7 +1001,7 @@ def run_one_batch_smoke(experiment, config):
     model.train()
     optimizer.zero_grad(set_to_none=True)
     with torch.autocast(device_type=device.type, enabled=use_amp):
-        raw_logits = model(images)
+        raw_logits = forward_batch(model, train_batch, device)
         logits = _check_binary_output(raw_logits, targets.shape[0])
         loss = criterion(logits, targets)
     if not torch.isfinite(logits).all() or not torch.isfinite(loss):
@@ -894,7 +1018,7 @@ def run_one_batch_smoke(experiment, config):
     val_batch = next(iter(experiment["val_loader"]))
     val_images = val_batch["image"].to(device)
     with torch.no_grad():
-        val_raw_logits = model(val_images)
+        val_raw_logits = forward_batch(model, val_batch, device)
         val_logits = _check_binary_output(
             val_raw_logits,
             val_images.shape[0],
@@ -902,6 +1026,25 @@ def run_one_batch_smoke(experiment, config):
         probabilities = torch.sigmoid(val_logits)
     if not torch.isfinite(probabilities).all():
         raise RuntimeError("Smoke validation probabilities are non-finite.")
+
+    metadata = train_batch.get("metadata")
+    gradient_checks = {}
+    for name in ("features", "metadata_mlp", "fusion_classifier"):
+        module = getattr(model, name, None)
+        if module is not None:
+            gradients = [
+                parameter.grad
+                for parameter in module.parameters()
+                if parameter.requires_grad
+            ]
+            gradient_checks[name] = bool(
+                gradients
+                and any(
+                    gradient is not None
+                    and torch.isfinite(gradient).all()
+                    for gradient in gradients
+                )
+            )
 
     return {
         "image_shape": list(images.shape),
@@ -923,6 +1066,14 @@ def run_one_batch_smoke(experiment, config):
         "probabilities_in_range": bool(
             ((probabilities >= 0) & (probabilities <= 1)).all().item()
         ),
+        "metadata_shape": list(metadata.shape) if metadata is not None else None,
+        "metadata_dtype": str(metadata.dtype) if metadata is not None else None,
+        "metadata_finite": (
+            bool(torch.isfinite(metadata).all().item())
+            if metadata is not None
+            else None
+        ),
+        "gradient_checks": gradient_checks,
     }
 
 
@@ -983,6 +1134,14 @@ def main(args=None):
     print("pos_weight:", experiment["loss_info"]["pos_weight"])
     print("Model:", config["model"]["architecture"])
     print("Weights:", config["model"]["weights"])
+    if experiment.get("metadata_preparation") is not None:
+        print("Metadata columns:", METADATA_COLUMNS)
+        print(
+            "Metadata dimension:",
+            experiment["metadata_preparation"].train_matrix.shape[1],
+        )
+        print("Metadata fit partition: training_only")
+        print("M1 checkpoint used for initialization: False")
     print("Image size:", config["data"]["image_size"])
     print("Batch size:", config["data"]["batch_size"])
     print("Workers:", experiment["train_loader"].num_workers)

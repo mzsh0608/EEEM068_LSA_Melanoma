@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 import pytest
 import torch
@@ -156,3 +157,61 @@ def test_create_dataloaders_with_zero_workers(tmp_path):
     assert val_batch["image"].shape == (2, 3, 224, 224)
     assert train_loader.persistent_workers is False
     assert val_loader.persistent_workers is False
+
+
+def test_dataset_metadata_mode_returns_encoded_float32_vector(tmp_path):
+    image_paths = []
+    for index in range(2):
+        path = tmp_path / f"image_{index}.jpg"
+        _write_image(path)
+        image_paths.append(path)
+    metadata = np.array(
+        [[-0.5, 1.0, 0.0], [0.5, 0.0, 1.0]],
+        dtype=np.float32,
+    )
+    dataset = MelanomaDataset(
+        _dataframe(image_paths),
+        transform=get_val_transforms(),
+        metadata_array=metadata,
+        use_metadata=True,
+    )
+
+    sample = dataset[0]
+
+    assert sample["metadata"].shape == (3,)
+    assert sample["metadata"].dtype == torch.float32
+    assert torch.isfinite(sample["metadata"]).all()
+
+
+def test_dataloader_collates_metadata_as_batch_by_dimension(tmp_path):
+    image_paths = []
+    for index in range(4):
+        path = tmp_path / f"image_{index}.jpg"
+        _write_image(path)
+        image_paths.append(path)
+    metadata = np.arange(20, dtype=np.float32).reshape(4, 5)
+    dataset = MelanomaDataset(
+        _dataframe(image_paths),
+        transform=get_val_transforms(),
+        metadata_array=metadata,
+        use_metadata=True,
+    )
+    loader = torch.utils.data.DataLoader(dataset, batch_size=2)
+
+    batch = next(iter(loader))
+
+    assert batch["metadata"].shape == (2, 5)
+    assert batch["metadata"].dtype == torch.float32
+    assert torch.isfinite(batch["metadata"]).all()
+
+
+def test_image_only_dataset_does_not_expose_metadata(tmp_path):
+    image_path = tmp_path / "image_a.jpg"
+    _write_image(image_path)
+    dataset = MelanomaDataset(
+        _dataframe([image_path]),
+        transform=get_val_transforms(),
+        use_metadata=False,
+    )
+
+    assert "metadata" not in dataset[0]

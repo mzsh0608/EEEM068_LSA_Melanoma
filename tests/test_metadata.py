@@ -135,12 +135,14 @@ def test_serialization_round_trip_preserves_transform(tmp_path):
         prepared,
         preprocessor_path,
         summary_path,
+        validation_df=validation,
     )
     reloaded = joblib.load(preprocessor_path)
     transformed = transform_metadata(reloaded, validation)
 
     np.testing.assert_allclose(transformed, prepared.val_matrix)
     assert summary_path.is_file()
+    assert prepared.summary["serialization_round_trip_verified"] is True
 
 
 def test_feature_names_and_dimension_come_from_fitted_encoder():

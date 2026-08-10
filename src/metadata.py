@@ -1,6 +1,7 @@
 """Leakage-safe preprocessing for the whitelisted M2 metadata."""
 
 import json
+import warnings
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -193,13 +194,35 @@ def prepare_metadata(train_df, val_df):
     )
 
 
-def save_metadata_artifacts(preparation, preprocessor_path, summary_path):
-    """Serialize the fitted preprocessor and its learned-state summary."""
+def save_metadata_artifacts(
+    preparation,
+    preprocessor_path,
+    summary_path,
+    validation_df=None,
+):
+    """Serialize metadata state and optionally verify its validation output."""
     preprocessor_path = Path(preprocessor_path)
     summary_path = Path(summary_path)
     preprocessor_path.parent.mkdir(parents=True, exist_ok=True)
     summary_path.parent.mkdir(parents=True, exist_ok=True)
     joblib.dump(preparation.preprocessor, preprocessor_path)
+    if validation_df is not None:
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                "ignore",
+                message=".*is deprecated.*",
+                category=DeprecationWarning,
+                module="joblib.*",
+            )
+            restored = joblib.load(preprocessor_path)
+        restored_matrix = transform_metadata(restored, validation_df)
+        np.testing.assert_allclose(
+            restored_matrix,
+            preparation.val_matrix,
+            rtol=0.0,
+            atol=0.0,
+        )
+        preparation.summary["serialization_round_trip_verified"] = True
     with summary_path.open("w", encoding="utf-8") as handle:
         json.dump(preparation.summary, handle, indent=2)
     return preprocessor_path, summary_path
