@@ -1,0 +1,74 @@
+{
+  "input_columns": [
+    "age_approx",
+    "sex",
+    "anatom_site_general_challenge"
+  ],
+  "numeric_columns": [
+    "age_approx"
+  ],
+  "categorical_columns": [
+    "sex",
+    "anatom_site_general_challenge"
+  ],
+  "fit_partition": "training_only",
+  "train_rows": 26499,
+  "validation_rows": 6627,
+  "missing_counts": {
+    "training": {
+      "age_approx": 68,
+      "sex": 65,
+      "anatom_site_general_challenge": 425
+    },
+    "validation": {
+      "age_approx": 0,
+      "sex": 0,
+      "anatom_site_general_challenge": 102
+    }
+  },
+  "age_imputation_median": 50.0,
+  "age_scaler_mean": 48.59164496773463,
+  "age_scaler_scale": 14.20582128293888,
+  "training_categories": {
+    "sex": [
+      "female",
+      "male",
+      "unknown"
+    ],
+    "anatom_site_general_challenge": [
+      "head/neck",
+      "lower extremity",
+      "oral/genital",
+      "palms/soles",
+      "torso",
+      "unknown",
+      "upper extremity"
+    ]
+  },
+  "validation_only_categories": {
+    "sex": [],
+    "anatom_site_general_challenge": []
+  },
+  "feature_names": [
+    "age_approx",
+    "sex_female",
+    "sex_male",
+    "sex_unknown",
+    "anatom_site_general_challenge_head/neck",
+    "anatom_site_general_challenge_lower extremity",
+    "anatom_site_general_challenge_oral/genital",
+    "anatom_site_general_challenge_palms/soles",
+    "anatom_site_general_challenge_torso",
+    "anatom_site_general_challenge_unknown",
+    "anatom_site_general_challenge_upper extremity"
+  ],
+  "metadata_dimension": 11,
+  "policies": {
+    "numeric_imputation": "median",
+    "numeric_scaling": "standard",
+    "categorical_missing_value": "unknown",
+    "categorical_encoding": "one_hot",
+    "handle_unknown": "ignore"
+  },
+  "serialization_round_trip_verified": true
+}

@@ -183,3 +183,129 @@ external validation, or architecture-specific hyperparameter optimisation.
 Threshold 0.5 was deliberately fixed rather than tuned. Severe class imbalance
 kept precision low, and M1's 2,424 false positives show that stronger ranking
 does not imply an acceptable operating point or clinical utility.
+
+## M2 — ConvNeXt-Tiny + metadata fusion
+
+### Metadata preprocessing
+
+M2 used only `age_approx`, `sex`, and
+`anatom_site_general_challenge`. The fitted preprocessor used median
+imputation followed by standard scaling for age, and constant `unknown`
+imputation followed by dense one-hot encoding for sex and site. All learned
+statistics and categories came from the 26,499 training rows only. Fold 0 was
+transformed without refitting.
+
+Training/validation missing counts were 68/0 for age, 65/0 for sex, and
+425/102 for site. The training age median was 50.0; the fitted scaler mean and
+scale were 48.59164496773463 and 14.20582128293888. No validation-only
+categories occurred. A joblib serialization round trip reproduced the Fold 0
+transformation exactly.
+
+### Metadata feature representation
+
+The representation had 11 finite `float32` features: scaled age; female,
+male, and unknown sex indicators; and head/neck, lower extremity,
+oral/genital, palms/soles, torso, unknown, and upper extremity site
+indicators. Matrix shapes were `(26499, 11)` and `(6627, 11)`.
+
+### Fusion architecture
+
+The ImageNet-initialized ConvNeXt-Tiny image path retained its features,
+adaptive pooling, classifier normalization, and flattening to a 768-element
+image embedding. The metadata branch was `11 -> 32 -> GELU -> Dropout(0.20)`.
+The two embeddings were concatenated and passed to one `800 -> 1` linear
+layer that returned a raw melanoma logit. M2 did not load the melanoma-trained
+M1 checkpoint.
+
+### Experimental setup
+
+M2 matched M1 on seed 42, the 26,499-row training partition, the fixed
+6,627-row patient-aware Fold 0, 224x224 RGB transforms, ImageNet V1 image
+initialization, full fine-tuning, weighted BCE, `pos_weight`
+55.74304068522484, AdamW with learning rate and weight decay 0.0001, no
+scheduler, CUDA AMP, batch size 32, four workers, maximum 10 epochs,
+patience 3, ROC-AUC checkpoint selection, and threshold 0.5.
+
+### Validation results at threshold 0.5
+
+| Metric | M2 |
+|---|---:|
+| ROC-AUC | 0.8974457442 |
+| Average Precision | 0.1652915978 |
+| Accuracy | 0.7387958352 |
+| Balanced accuracy | 0.8166902989 |
+| Precision | 0.0575657895 |
+| Sensitivity | 0.8974358974 |
+| Specificity | 0.7359447005 |
+| F1 | 0.1081916538 |
+| TN | 4,791 |
+| FP | 1,719 |
+| FN | 12 |
+| TP | 105 |
+
+The reloaded epoch 8 checkpoint produced all 6,627 predictions. Probabilities
+were finite and ranged from 0.0017585594 to 0.9795469642. Independent metric
+recomputation matched `metrics.json` exactly.
+
+### Training behaviour
+
+Training loss declined overall from 1.1688 to 0.7596. ROC-AUC was unstable,
+with interim peaks at epochs 4 and 7 before reaching its maximum of 0.8974 at
+epoch 8. Average Precision and validation loss instead reached their best
+observed values at epoch 9 (0.1892 and 0.8162). Epoch 10 did not improve the
+selection metric. Training used all 10 epochs, so early stopping did not
+trigger; final evaluation correctly restored epoch 8. Total fitting and final
+evaluation time was 1,080.50 seconds.
+
+### Controlled M1 -> M2 metadata ablation
+
+| Metric | M1 image only | M2 image + metadata | M2 - M1 |
+|---|---:|---:|---:|
+| ROC-AUC | 0.9008481363 | 0.8974457442 | -0.0034023921 |
+| Average Precision | 0.1694056107 | 0.1652915978 | -0.0041140129 |
+| Accuracy | 0.6337709371 | 0.7387958352 | +0.1050248981 |
+| Balanced accuracy | 0.8010043720 | 0.8166902989 | +0.0156859270 |
+| Precision | 0.0449172577 | 0.0575657895 | +0.0126485318 |
+| Sensitivity | 0.9743589744 | 0.8974358974 | -0.0769230769 |
+| Specificity | 0.6276497696 | 0.7359447005 | +0.1082949309 |
+| F1 | 0.0858757062 | 0.1081916538 | +0.0223159476 |
+| TP | 114 | 105 | -9 |
+| FP | 2,424 | 1,719 | -705 |
+| FN | 3 | 12 | +9 |
+| TN | 4,086 | 4,791 | +705 |
+
+Metadata did not improve the selected ranking metrics on this fold. At the
+fixed threshold, M2 made fewer positive predictions: it removed 705 false
+positives but missed 9 additional melanomas. This improved specificity,
+precision, accuracy, balanced accuracy, and F1 while reducing sensitivity.
+
+### Computational/model-complexity comparison
+
+| Property | M1 | M2 | Difference |
+|---|---:|---:|---:|
+| Total parameters | 27,820,897 | 27,821,313 | +416 |
+| Trainable parameters | 27,820,897 | 27,821,313 | +416 |
+| Actual epochs | 7 | 10 | +3 |
+| Best epoch | 4 | 8 | +4 |
+| Total duration (seconds) | 767.50 | 1,080.50 | +313.00 |
+
+The fusion architecture itself added only 416 parameters. The longer observed
+run mainly reflects three additional epochs and a later selected checkpoint,
+not material growth in model size.
+
+### Interpretation
+
+The joint metadata branch did not provide evidence of improved ranking beyond
+M1 on this single fixed fold. Its threshold-0.5 operating point had a lower
+false-positive burden but also more false negatives. These results show a
+changed score distribution and trade-off, not uniform superiority. Because
+age, sex, and site were added together, no individual variable can be credited
+or blamed without separate ablations.
+
+### Limitations
+
+This is one fixed-fold ablation without confidence intervals, external
+validation, variable-specific ablations, calibration analysis, or threshold
+analysis. Fold 0 was used for checkpoint selection, and no statistical test
+establishes whether the small ranking differences are meaningful. The fixed
+0.5 results do not establish clinical utility.

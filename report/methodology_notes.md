@@ -109,3 +109,40 @@ data, preprocessing, imbalance treatment, optimisation, model selection, and
 threshold choices. The principal externally controlled change was ResNet18
 versus ConvNeXt-Tiny. The architectures still differ internally in multiple
 ways, so the experiment does not isolate one ConvNeXt design component.
+
+## M2 ConvNeXt-Tiny metadata-fusion methodology
+
+- predictive metadata whitelist: `age_approx`, `sex`, and
+  `anatom_site_general_challenge`
+- excluded predictive fields: target, diagnosis, benign/malignant label,
+  patient ID, image name, TFRecord ID, width, and height
+- preprocessor fitting partition: the 26,499 training rows only
+- age: training-median imputation, then training-derived standardisation
+- sex and site: missing value `unknown`, then one-hot encoding with unseen
+  categories ignored rather than refitted
+- fitted training age median: 50.0
+- fitted age mean/scale: 48.59164496773463 / 14.20582128293888
+- fitted sex categories: female, male, unknown
+- fitted site categories: head/neck, lower extremity, oral/genital,
+  palms/soles, torso, unknown, upper extremity
+- output representation: 11 dense finite `float32` features
+- transformed shapes: `(26499, 11)` training and `(6627, 11)` validation
+- serialization: fitted joblib preprocessor and JSON learned-state summary;
+  validation transformation verified after reload
+
+The image branch was torchvision ConvNeXt-Tiny initialized directly from
+`IMAGENET1K_V1`. It did not load the M1 melanoma checkpoint. The standard
+features, adaptive pool, classifier normalization, and flatten path produced
+a 768-dimensional image embedding. The metadata branch was
+`11 -> 32 -> GELU -> Dropout(0.20)`. Concatenation produced an 800-dimensional
+fusion vector, followed by one linear raw-logit output. All branches were
+jointly fine-tuned.
+
+M1 and M2 form the principal component ablation. Both used seed 42, the same
+training rows and fixed patient-aware Fold 0, identical image transforms,
+weighted `BCEWithLogitsLoss`, training-only `pos_weight`
+55.74304068522484, AdamW, learning rate 0.0001, weight decay 0.0001, no
+scheduler, CUDA AMP, maximum 10 epochs, patience 3, maximum validation
+ROC-AUC checkpoint selection, and threshold 0.5. M2 added only the
+training-fitted metadata representation, 32-dimensional metadata branch, and
+fusion classifier.

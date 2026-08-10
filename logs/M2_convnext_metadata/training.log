@@ -1,0 +1,25 @@
+start_timestamp=2026-08-10T07:20:48.518996+00:00
+git_commit=3349e7796bb10daae2c729610f2c718f5693148e
+experiment_id=M2
+device=cuda
+gpu_name=NVIDIA GeForce RTX 3080 Laptop GPU
+data_counts=train:26499 validation:6627 train_negative:26032 train_positive:467 validation_negative:6510 validation_positive:117
+pos_weight=55.74304068522484
+configuration=architecture:convnext_tiny_metadata weights:IMAGENET1K_V1 metadata_enabled:True metadata_dimension:11 metadata_fit:training_only m1_checkpoint_used_for_initialization:False batch_size:32 num_workers:4 optimizer:adamw learning_rate:0.0001 weight_decay:0.0001 amp_active:True max_epochs:10 patience:3 total_parameters:27821313 trainable_parameters:27821313
+epoch=1 train_loss=1.16880286 val_loss=1.03909951 roc_auc=0.83194428 seconds=160.59
+epoch=2 train_loss=1.00128214 val_loss=0.96882995 roc_auc=0.85202516 seconds=99.99
+epoch=3 train_loss=0.93236708 val_loss=0.93543949 roc_auc=0.84773983 seconds=100.00
+epoch=4 train_loss=0.89345980 val_loss=0.92025323 roc_auc=0.87899090 seconds=100.56
+epoch=5 train_loss=0.84965534 val_loss=1.16844745 roc_auc=0.85236585 seconds=100.47
+epoch=6 train_loss=0.84786068 val_loss=1.12306758 roc_auc=0.83812281 seconds=100.53
+epoch=7 train_loss=0.90714035 val_loss=0.87366028 roc_auc=0.88640619 seconds=100.43
+epoch=8 train_loss=0.79371211 val_loss=0.83011202 roc_auc=0.89744574 seconds=100.57
+epoch=9 train_loss=0.77393460 val_loss=0.81621028 roc_auc=0.89306918 seconds=100.45
+epoch=10 train_loss=0.75959922 val_loss=0.88393210 roc_auc=0.87995917 seconds=100.74
+best_epoch=8 best_metric=0.89744574
+early_stopping_triggered=False
+actual_epochs=10 total_seconds=1080.50
+end_timestamp=2026-08-10T07:38:49.097280+00:00
+artifacts=checkpoint:C:\Users\test\Documents\EEEM068_LSA_Melanoma\outputs\checkpoints\M2_convnext_metadata_best.pt predictions:C:\Users\test\Documents\EEEM068_LSA_Melanoma\outputs\predictions\M2_convnext_metadata.csv metrics:C:\Users\test\Documents\EEEM068_LSA_Melanoma\logs\M2_convnext_metadata\metrics.json history:C:\Users\test\Documents\EEEM068_LSA_Melanoma\logs\M2_convnext_metadata\history.csv
+warnings=none
+generated_artifacts=config:C:\Users\test\Documents\EEEM068_LSA_Melanoma\logs\M2_convnext_metadata\config.json environment:C:\Users\test\Documents\EEEM068_LSA_Melanoma\logs\M2_convnext_metadata\environment.json training_curves:C:\Users\test\Documents\EEEM068_LSA_Melanoma\outputs\figures\M2_training_curves.png confusion_matrix:C:\Users\test\Documents\EEEM068_LSA_Melanoma\outputs\figures\M2_confusion_matrix.png roc_pr_curve:C:\Users\test\Documents\EEEM068_LSA_Melanoma\outputs\figures\M2_roc_pr.png metadata_preprocessor:C:\Users\test\Documents\EEEM068_LSA_Melanoma\logs\M2_convnext_metadata\metadata_preprocessor.joblib metadata_summary:C:\Users\test\Documents\EEEM068_LSA_Melanoma\logs\M2_convnext_metadata\metadata_summary.json

@@ -326,7 +326,135 @@ significant architecture superiority.
 
 ---
 
-## 10. Reusable PyTorch pipeline
+## 10. Metadata fusion (M2)
+
+### What is metadata fusion?
+
+Metadata fusion combines the learned image representation with structured
+patient or lesion attributes before classification. M2 concatenated a
+768-dimensional ConvNeXt image embedding with a 32-dimensional metadata
+embedding and mapped the result to one raw logit.
+
+### Why use age, sex, and anatomical site?
+
+These variables were available before diagnosis and may contain context that
+is not fully visible in lesion pixels. Age can reflect differing disease
+prevalence, sex may correlate with population-level risk patterns, and site
+provides lesion-location context. Their use does not mean they cause the
+prediction or that demographic differences are clinically acceptable.
+
+### Why not use diagnosis?
+
+Diagnosis directly describes the lesion outcome and can encode the target.
+Using it as an input would leak answer-like information and invalidate the
+classification experiment.
+
+### What is target leakage?
+
+Target leakage occurs when a predictive input contains information that would
+not legitimately be available when making the intended prediction, especially
+information derived from the outcome. It can produce misleadingly high
+validation performance.
+
+### Why fit preprocessing on training only?
+
+Imputation, scaling, and category discovery all learn facts about a dataset.
+Fitting them on Fold 0 would let validation values shape the model input space,
+so M2 fitted once on 26,499 training rows and only transformed Fold 0.
+
+### What are median imputation and the training median?
+
+Median imputation replaces missing ages with the middle observed training age.
+M2's training median was 50.0. The training median is used because validation
+ages must not influence fitting and the median is less sensitive to extreme
+values than the mean.
+
+### Why standardise age, and what does StandardScaler learn?
+
+Standardisation places age on a scale more compatible with encoded categorical
+features and neural optimisation. StandardScaler learned a training mean of
+48.59164496773463 and scale of 14.20582128293888, then reused them unchanged
+for Fold 0.
+
+### Why one-hot encode sex and site?
+
+These categories have no defensible numeric order. One-hot encoding gives each
+training category its own indicator rather than implying that one location or
+sex is numerically greater than another.
+
+### What does handle_unknown="ignore" do?
+
+An unseen validation category maps to zeros for that variable's learned
+indicators instead of expanding the feature space or failing. No such
+validation-only category occurred in the real Fold 0, but the behaviour is
+covered by synthetic tests.
+
+### Why not use patient_id as a predictive input?
+
+Patient ID is an identity and grouping key, not a clinical predictor. Encoding
+it could encourage memorisation and undermine evaluation on unseen patients;
+M2 kept it only for splitting and prediction audits.
+
+### What is an image embedding, and where was it extracted?
+
+An image embedding is a compact learned feature vector representing the image.
+M2 used the normal ConvNeXt features, adaptive pooling, classifier LayerNorm,
+and flatten operations, taking the 768 values immediately before the original
+final classification linear layer.
+
+### What are feature concatenation and the metadata MLP?
+
+Concatenation joins the 768 image features and 32 metadata features into one
+800-element vector. The metadata MLP was a learned linear projection from the
+11 preprocessed inputs to 32 values, followed by GELU and dropout.
+
+### Why a small 32-dimensional embedding, GELU, and dropout?
+
+Thirty-two dimensions provide limited nonlinear metadata capacity without
+letting a small structured input branch dominate model size. GELU matches the
+smooth activation family used by ConvNeXt. Dropout 0.20 regularises the new
+branch during training and is disabled at evaluation.
+
+### Why only one final fusion linear layer?
+
+The deliberately small head keeps the ablation interpretable: the principal
+addition is metadata information, not a large new classifier. It also added
+only 416 parameters relative to M1.
+
+### Why initialize M2 from ImageNet rather than M1?
+
+Loading M1 would give M2 extra melanoma-supervised training before fusion and
+confound the comparison. Both image encoders therefore started independently
+from the same ImageNet V1 weights, while M2 jointly trained its image,
+metadata, and fusion branches.
+
+### What changed and what remained fixed from M1 to M2?
+
+M2 added training-only metadata preprocessing, an 11-to-32 metadata branch,
+concatenation, and a fusion classifier. The seed, ConvNeXt-Tiny family,
+ImageNet initialization, train/Fold 0 rows, image pipeline, weighted BCE,
+`pos_weight`, AdamW settings, AMP, training budget, checkpoint criterion, and
+threshold remained fixed.
+
+### Did metadata improve performance, and what trade-offs changed?
+
+It did not improve ranking on this fold: ROC-AUC changed from 0.900848 to
+0.897446 and AP from 0.169406 to 0.165292. At threshold 0.5, M2 reduced false
+positives by 705 and improved specificity, precision, balanced accuracy, and
+F1, but produced 9 more false negatives and reduced sensitivity from 0.974359
+to 0.897436.
+
+### What limitations does the M2 ablation have?
+
+It uses one validation fold, no confidence intervals, no external validation,
+and no calibration or threshold analysis. The three metadata variables were
+added together, so the result cannot be attributed to age, sex, or site
+individually without separate ablations. The evidence does not establish
+statistical significance or clinical utility.
+
+---
+
+## 11. Reusable PyTorch pipeline
 
 ### Dataset and DataLoader
 

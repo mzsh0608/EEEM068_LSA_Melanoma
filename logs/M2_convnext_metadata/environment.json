@@ -1,0 +1,14 @@
+{
+  "python_version": "3.12.10",
+  "python_full": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "numpy_version": "2.5.1",
+  "scikit_learn_version": "1.9.0",
+  "torch_version": "2.11.0+cu128",
+  "torchvision_version": "0.26.0+cu128",
+  "cuda_runtime": "12.8",
+  "cuda_available": true,
+  "gpu_name": "NVIDIA GeForce RTX 3080 Laptop GPU",
+  "git_commit": "3349e7796bb10daae2c729610f2c718f5693148e",
+  "experiment_id": "M2"
+}
