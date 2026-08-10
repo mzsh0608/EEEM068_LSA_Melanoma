@@ -18,5 +18,9 @@ Each neural network experiment will store:
 | M1 | ConvNeXt-Tiny image-only | Complete |
 | M2 | ConvNeXt-Tiny + metadata | Complete |
 
-The H0, H1, B0, M1, and M2 core model hierarchy is complete. Phase I
-behaviour and reliability analyses remain pending.
+The H0, H1, B0, M1, and M2 core model hierarchy and the Phase I behaviour and
+reliability analyses are complete.
+
+The historical fields `val_pr_auc` and `pr_auc_average_precision` contain
+scikit-learn Average Precision (AP). They remain unchanged for compatibility;
+they do not contain a separately calculated trapezoidal PR-AUC.

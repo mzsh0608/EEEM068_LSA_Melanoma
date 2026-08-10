@@ -42,7 +42,7 @@ Evaluation:
 - common threshold = 0.5
 - historical H1 threshold 0.3 analysed separately
 - ROC-AUC
-- PR-AUC / Average Precision
+- Average Precision (AP), computed with `average_precision_score`
 - balanced accuracy
 - sensitivity
 - specificity
@@ -146,3 +146,8 @@ scheduler, CUDA AMP, maximum 10 epochs, patience 3, maximum validation
 ROC-AUC checkpoint selection, and threshold 0.5. M2 added only the
 training-fitted metadata representation, 32-dimensional metadata branch, and
 fusion classifier.
+
+M1 and M2 were nevertheless initialized and trained independently from
+ImageNet weights. Aggregate differences describe the metadata-fusion system
+relative to the image-only system, but individual probability or prediction
+changes are not isolated causal metadata contributions.

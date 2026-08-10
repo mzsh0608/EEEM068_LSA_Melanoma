@@ -1,0 +1,125 @@
+{
+  "checkpoint_policy": "local checkpoints remain Git-ignored",
+  "models": [
+    {
+      "model": "B0",
+      "path": "outputs/checkpoints/B0_resnet18_best.pt",
+      "exists_locally": true,
+      "bytes": 134261153,
+      "sha256": "acfa9a957812cf2919b4f6d45efe58da02db9f82b70bf16ca5950a377e6cedb2",
+      "git_state": "ignored",
+      "tracked_evidence": {
+        "config": {
+          "path": "configs/resnet18.yaml",
+          "exists": true,
+          "git_state": "tracked"
+        },
+        "environment": {
+          "path": "logs/B0_resnet18/environment.json",
+          "exists": true,
+          "git_state": "tracked"
+        },
+        "history": {
+          "path": "logs/B0_resnet18/history.csv",
+          "exists": true,
+          "git_state": "tracked"
+        },
+        "metrics": {
+          "path": "logs/B0_resnet18/metrics.json",
+          "exists": true,
+          "git_state": "tracked"
+        },
+        "training_log": {
+          "path": "logs/B0_resnet18/training.log",
+          "exists": true,
+          "git_state": "tracked"
+        },
+        "predictions": {
+          "path": "outputs/predictions/B0_resnet18.csv",
+          "exists": true,
+          "git_state": "tracked"
+        }
+      }
+    },
+    {
+      "model": "M1",
+      "path": "outputs/checkpoints/M1_convnext_image_best.pt",
+      "exists_locally": true,
+      "bytes": 334084177,
+      "sha256": "427069959e8912cbf81470995c6abbd51d08b81b9c6fa40fa82e6551e7920823",
+      "git_state": "ignored",
+      "tracked_evidence": {
+        "config": {
+          "path": "configs/convnext_image.yaml",
+          "exists": true,
+          "git_state": "tracked"
+        },
+        "environment": {
+          "path": "logs/M1_convnext_image/environment.json",
+          "exists": true,
+          "git_state": "tracked"
+        },
+        "history": {
+          "path": "logs/M1_convnext_image/history.csv",
+          "exists": true,
+          "git_state": "tracked"
+        },
+        "metrics": {
+          "path": "logs/M1_convnext_image/metrics.json",
+          "exists": true,
+          "git_state": "tracked"
+        },
+        "training_log": {
+          "path": "logs/M1_convnext_image/training.log",
+          "exists": true,
+          "git_state": "tracked"
+        },
+        "predictions": {
+          "path": "outputs/predictions/M1_convnext_image.csv",
+          "exists": true,
+          "git_state": "tracked"
+        }
+      }
+    },
+    {
+      "model": "M2",
+      "path": "outputs/checkpoints/M2_convnext_metadata_best.pt",
+      "exists_locally": true,
+      "bytes": 334094891,
+      "sha256": "1de41b5cb085ee6c2d29c3dbf23b56afeec8043d252dbfeea149a9c0e18ec312",
+      "git_state": "ignored",
+      "tracked_evidence": {
+        "config": {
+          "path": "configs/convnext_metadata.yaml",
+          "exists": true,
+          "git_state": "tracked"
+        },
+        "environment": {
+          "path": "logs/M2_convnext_metadata/environment.json",
+          "exists": true,
+          "git_state": "tracked"
+        },
+        "history": {
+          "path": "logs/M2_convnext_metadata/history.csv",
+          "exists": true,
+          "git_state": "tracked"
+        },
+        "metrics": {
+          "path": "logs/M2_convnext_metadata/metrics.json",
+          "exists": true,
+          "git_state": "tracked"
+        },
+        "training_log": {
+          "path": "logs/M2_convnext_metadata/training.log",
+          "exists": true,
+          "git_state": "tracked"
+        },
+        "predictions": {
+          "path": "outputs/predictions/M2_convnext_metadata.csv",
+          "exists": true,
+          "git_state": "tracked"
+        }
+      }
+    }
+  ]
+}

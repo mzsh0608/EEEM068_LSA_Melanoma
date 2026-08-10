@@ -1,5 +1,6 @@
 {
   "analysis_timestamp": "2026-08-10T10:25:12+02:00",
+  "technical_remediation_timestamp": "2026-08-10T11:03:35+02:00",
   "phase_h_start_commit": "2762ba659f7315e3d88e90e6b1d397119ef43aef",
   "analysis_code_commit": "cf62541bf6cfa507a4014e75415f7f0e0cb0d604",
   "source_prediction_files": {
@@ -64,7 +65,14 @@
     "selected_per_confusion_category": 6,
     "total_selected": 24,
     "visually_reviewed": 24,
-    "duplicate_image_note": "ISIC_0149568 and ISIC_9022005 are byte-identical JPEGs from patient IP_0962375."
+    "unique_content_required_within_category": true,
+    "duplicate_image_note": "ISIC_0149568 and ISIC_9022005 are byte-identical JPEGs from patient IP_0962375; only ISIC_0149568 remains in the qualitative sample.",
+    "content_duplicate_remediation": {
+      "removed": "ISIC_9022005",
+      "replacement": "ISIC_4967586",
+      "category": "FN",
+      "quantitative_predictions_changed": false
+    }
   },
   "disagreement_counts": {
     "M1_NEG_TO_M2_NEG": 3968,

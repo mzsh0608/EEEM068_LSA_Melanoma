@@ -73,9 +73,12 @@ majority class. This gain came with 1,513 false positives and specificity of
 0.7676. Its precision remained low at 0.0579 because melanoma prevalence is
 very low and the weighted loss strongly penalises missed positives.
 
-The evidence supports the value of a pretrained hierarchical image
-representation over flattened grayscale pixels on this fixed fold. It does
-not establish clinical utility or statistical significance. The remaining
+This is a system-level historical progression rather than an isolated
+architecture experiment: H0/H1 used 64x64 flattened grayscale pixels and a
+5,000-image training subset, whereas B0 used 224x224 RGB images, all 26,499
+training rows, ImageNet initialization, augmentation, and a CNN. The observed
+difference cannot be causally assigned to architecture alone. It does not
+establish clinical utility or statistical significance. The remaining
 sensitivity-specificity trade-off, low precision, single-fold evaluation, and
 lack of uncertainty estimates remain important limitations.
 
@@ -160,11 +163,16 @@ and F1 were lower than B0.
 | Trainable parameters | 11,177,025 | 27,820,897 |
 | Actual epochs | 7 | 7 |
 | Best epoch | 4 | 4 |
-| Total duration (seconds) | 593.76 | 767.50 |
-| Mean epoch duration after epoch 1 (seconds) | 68.03 | 98.94 |
+| Sum of epoch seconds | 582.85 | 751.71 |
+| Mean epoch seconds | 83.26 | 107.39 |
+| Median epoch seconds | 68.53 | 98.95 |
+| Reported fit duration (seconds) | 593.76 | 767.50 |
 
-M1 had 2.49 times as many parameters and took approximately 29% longer
-overall. Its post-startup epochs were approximately 45% longer than B0's.
+M1 had 2.49 times as many parameters and its reported fit duration was
+approximately 29% longer. Epoch seconds cover each training and validation
+pass. Reported fit duration additionally includes fit setup, checkpoint/log
+overhead, best-checkpoint reload, and final validation, but excludes final
+artifact writes.
 
 ### Interpretation
 
@@ -287,11 +295,15 @@ precision, accuracy, balanced accuracy, and F1 while reducing sensitivity.
 | Trainable parameters | 27,820,897 | 27,821,313 | +416 |
 | Actual epochs | 7 | 10 | +3 |
 | Best epoch | 4 | 8 | +4 |
-| Total duration (seconds) | 767.50 | 1,080.50 | +313.00 |
+| Sum of epoch seconds | 751.71 | 1,064.32 | +312.62 |
+| Mean epoch seconds | 107.39 | 106.43 | -0.95 |
+| Median epoch seconds | 98.95 | 100.50 | +1.55 |
+| Reported fit duration (seconds) | 767.50 | 1,080.50 | +313.00 |
 
-The fusion architecture itself added only 416 parameters. The longer observed
-run mainly reflects three additional epochs and a later selected checkpoint,
-not material growth in model size.
+The fusion architecture itself added only 416 parameters. M1 and M2 had
+similar mean and median epoch times. The longer total M2 run reflects three
+additional epochs and cannot be interpreted as direct metadata-branch
+computational overhead.
 
 ### Interpretation
 
@@ -304,8 +316,9 @@ or blamed without separate ablations.
 
 ### Limitations
 
-This is one fixed-fold ablation without confidence intervals, external
-validation, variable-specific ablations, calibration analysis, or threshold
-analysis. Fold 0 was used for checkpoint selection, and no statistical test
-establishes whether the small ranking differences are meaningful. The fixed
-0.5 results do not establish clinical utility.
+This is one fixed-fold ablation without external validation,
+variable-specific ablations, or calibration analysis. Phase I subsequently
+added exploratory fixed-grid threshold analysis and paired patient-level
+bootstrap intervals on the same Fold-0 validation data. Those internal
+analyses do not provide an independent test or external performance estimate.
+The fixed 0.5 results do not establish clinical utility.

@@ -1,0 +1,4 @@
+model,epochs,parameters,sum_epoch_seconds,mean_epoch_seconds,median_epoch_seconds,reported_total_duration_seconds,non_epoch_overhead_seconds,epoch_seconds_scope,reported_total_scope
+B0,7,11177025,582.8521801999887,83.26459717142696,68.53440599999158,593.759864599997,10.907684400008293,training and validation pass per epoch,"fit setup, epoch loops, checkpoint reload, and final validation; excludes final artifact writes"
+M1,7,27820897,751.7051602000429,107.38645145714898,98.94740630002345,767.4979752000072,15.792814999964321,training and validation pass per epoch,"fit setup, epoch loops, checkpoint reload, and final validation; excludes final artifact writes"
+M2,10,27821313,1064.3215337999864,106.43215337999864,100.50020380000934,1080.5029657999985,16.181432000012137,training and validation pass per epoch,"fit setup, epoch loops, checkpoint reload, and final validation; excludes final artifact writes"

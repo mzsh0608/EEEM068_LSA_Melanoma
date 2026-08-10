@@ -1,0 +1,212 @@
+{
+  "audit_timestamp": "2026-08-10T11:10:27+02:00",
+  "starting_head": "168d037d11a313119d387d12e20ec5aaa77e0e88",
+  "integrity_fix_commit": "676ce03caba254da20b48c308f3a26a2a5d16a77",
+  "phase_j_started": false,
+  "freeze_policy": {
+    "models_frozen": [
+      "H0",
+      "H1",
+      "B0",
+      "M1",
+      "M2"
+    ],
+    "fit_command_used": false,
+    "model_retraining_performed": false,
+    "authoritative_predictions_changed": false,
+    "authoritative_checkpoints_changed": false,
+    "train_folds_changed": false
+  },
+  "bootstrap": {
+    "status": "PASS",
+    "existing_implementation_preserved_multiplicity": true,
+    "mechanism": "Each sampled patient-group index array is concatenated in sampled draw order, so repeated draws repeat every row in the cluster.",
+    "paired_sampling": "The same expanded row-index array is used for M1 and M2.",
+    "synthetic_draw": [
+      "A",
+      "A",
+      "B"
+    ],
+    "synthetic_expected_rows": 5,
+    "regression_test_passed": true,
+    "implementation_changed": false,
+    "bootstrap_outputs_regenerated": false
+  },
+  "exact_image_duplicates": {
+    "status": "DOCUMENTATION-ONLY",
+    "hash_algorithm": "SHA-256 of JPEG file bytes",
+    "images_hashed": 33126,
+    "unique_hashes": 32693,
+    "duplicate_hash_groups": 433,
+    "duplicate_records": 866,
+    "same_patient_same_split_groups": 433,
+    "different_patient_same_split_groups": 0,
+    "same_patient_cross_split_groups": 0,
+    "different_patient_cross_split_groups": 0,
+    "conflicting_target_groups": 0,
+    "critical_leakage_detected": false,
+    "classification": "dataset quality and within-patient dependence",
+    "records_path": "outputs/analysis/data_integrity/exact_image_duplicates.csv",
+    "summary_path": "outputs/analysis/data_integrity/exact_image_duplicate_summary.json"
+  },
+  "qualitative_content_uniqueness": {
+    "status": "FIXED",
+    "failure_manifest_had_duplicate_content": true,
+    "removed_case": "ISIC_9022005",
+    "replacement_case": "ISIC_4967586",
+    "category": "FN",
+    "replacement_policy": "next-ranked case in the same confusion category with unique JPEG content",
+    "six_unique_cases_per_category": true,
+    "gradcam_case_count": 12,
+    "gradcam_unique_hash_count": 12,
+    "gradcam_changed": false,
+    "quantitative_predictions_changed": false
+  },
+  "metric_definition": {
+    "status": "FIXED",
+    "implementation": "sklearn.metrics.average_precision_score",
+    "final_terminology": "Average Precision (AP)",
+    "separate_trapezoidal_pr_auc_computed": false,
+    "legacy_fields_retained": [
+      "pr_auc_average_precision",
+      "val_pr_auc"
+    ]
+  },
+  "validation_terminology": {
+    "status": "PASS",
+    "authoritative_term": "fixed patient-aware Fold-0 validation set",
+    "independent_test_set_available": false,
+    "inappropriate_test_set_claims_found": false
+  },
+  "comparison_boundaries": {
+    "H0_H1_vs_B0": {
+      "status": "FIXED",
+      "interpretation": "historical system-level progression with representation, sample count, resolution, pretraining, augmentation, and architecture differences"
+    },
+    "B0_vs_M1": {
+      "status": "PASS",
+      "interpretation": "matched external protocol architecture-family comparison; no single ConvNeXt component is isolated causally"
+    },
+    "M1_vs_M2": {
+      "status": "FIXED",
+      "interpretation": "principal metadata-fusion system ablation, but independently trained models prevent per-sample causal metadata attribution"
+    }
+  },
+  "gradcam": {
+    "status": "FIXED",
+    "target": "raw melanoma logit",
+    "target_layer": "features.7.2",
+    "metadata_supplied": true,
+    "saved_preprocessor_reused": true,
+    "preprocessor_refitted": false,
+    "scope": "image-branch spatial attribution conditioned on supplied metadata",
+    "tn_boundary": "TN maps show positive-logit spatial contributions despite a low overall score; they do not directly explain the benign prediction."
+  },
+  "timing": {
+    "status": "FIXED",
+    "artifact": "outputs/analysis/technical_audit/training_timing_audit.csv",
+    "epoch_scope": "training and validation pass per epoch",
+    "reported_total_scope": "fit setup, epoch loops, checkpoint reload, and final validation; excludes final artifact writes",
+    "models": [
+      {
+        "model": "B0",
+        "epochs": 7,
+        "parameters": 11177025,
+        "sum_epoch_seconds": 582.8521801999887,
+        "mean_epoch_seconds": 83.26459717142696,
+        "median_epoch_seconds": 68.53440599999158,
+        "reported_total_seconds": 593.759864599997
+      },
+      {
+        "model": "M1",
+        "epochs": 7,
+        "parameters": 27820897,
+        "sum_epoch_seconds": 751.7051602000429,
+        "mean_epoch_seconds": 107.38645145714898,
+        "median_epoch_seconds": 98.94740630002345,
+        "reported_total_seconds": 767.4979752000072
+      },
+      {
+        "model": "M2",
+        "epochs": 10,
+        "parameters": 27821313,
+        "sum_epoch_seconds": 1064.3215337999864,
+        "mean_epoch_seconds": 106.43215337999864,
+        "median_epoch_seconds": 100.50020380000934,
+        "reported_total_seconds": 1080.5029657999985
+      }
+    ],
+    "m2_minus_m1_total_is_metadata_overhead": false
+  },
+  "training_history": {
+    "status": "DOCUMENTATION-ONLY",
+    "B0_train_auc_recorded": false,
+    "M1_train_auc_recorded": false,
+    "M2_train_auc_recorded": false,
+    "fabricated_train_auc_claims_found": false,
+    "available_training_behaviour": [
+      "train_loss",
+      "val_loss",
+      "val_roc_auc",
+      "val_average_precision",
+      "validation threshold metrics"
+    ]
+  },
+  "dependencies": {
+    "status": "FIXED",
+    "previous_state": "unversioned and missing explicit joblib despite a direct import",
+    "current_state": "pinned direct runtime, notebook, and test dependencies",
+    "lock_file_added": false,
+    "pip_check": "No broken requirements found.",
+    "pytorch_environment": "torch 2.11.0+cu128; torchvision 0.26.0+cu128",
+    "cuda_installation_note": "Use the official PyTorch wheel selector/index for the required CUDA build; requirements.txt pins public versions without inventing an index URL."
+  },
+  "determinism": {
+    "status": "DOCUMENTATION-ONLY",
+    "seed": 42,
+    "python_random_seeded": true,
+    "numpy_seeded": true,
+    "torch_cpu_seeded": true,
+    "torch_cuda_seeded_when_available": true,
+    "training_dataloader_generator_seeded": true,
+    "worker_numpy_and_python_seeded": true,
+    "cudnn_deterministic_during_experiment_setup": true,
+    "cudnn_benchmark_during_experiment_setup": false,
+    "torch_use_deterministic_algorithms_enabled": false,
+    "claim": "seed-controlled/reproducible protocol, not guaranteed bitwise deterministic training"
+  },
+  "pytest": {
+    "status": "FIXED",
+    "configuration": "pytest.ini disables the cache provider; conftest.py assigns a fresh repository-local basetemp for every run",
+    "command": "python -m pytest -v",
+    "collected": 99,
+    "passed": 99,
+    "failed": 0,
+    "warnings": 0
+  },
+  "hyperparameters": {
+    "status": "PASS",
+    "systematic_search_performed": false,
+    "unsupported_tuning_claims_found": false,
+    "protocol": "predeclared matched configuration with early stopping selecting effective duration"
+  },
+  "validation_limitations": {
+    "status": "DOCUMENTATION-ONLY",
+    "fold_0_is_validation_not_test": true,
+    "fold_0_used_for_checkpoint_selection": true,
+    "phase_i_reuses_fold_0_exploratorily": true,
+    "external_validation_cohort": false,
+    "full_cross_validation_performance_estimate": false,
+    "bootstrap_is_internal_resampling": true,
+    "additional_training_planned_for_remediation": false
+  },
+  "checkpoint_manifest": {
+    "status": "PASS",
+    "path": "outputs/analysis/technical_audit/checkpoint_manifest.json",
+    "all_checkpoints_exist_locally": true,
+    "all_checkpoints_git_ignored": true,
+    "tracked_experiment_evidence_complete": true
+  },
+  "critical_issues": [],
+  "safe_to_begin_phase_j": true
+}

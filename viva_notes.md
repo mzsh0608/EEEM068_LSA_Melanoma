@@ -278,6 +278,12 @@ melanomas, versus 1 and 17, showing that the pretrained CNN did not collapse
 to near-all-benign predictions. The cost was 1,513 false positives,
 specificity of 0.7676, and precision of only 0.0579.
 
+This is a historical system-level comparison, not an isolated architecture
+ablation. H0/H1 used 64x64 flattened grayscale pixels and a 5,000-image
+training subset; B0 used 224x224 RGB images, all training rows, ImageNet
+pretraining, augmentation, and a CNN. Architecture alone cannot be credited
+causally for the difference.
+
 ### What limitations remained?
 
 B0 was evaluated on one fixed fold, without confidence intervals or external
@@ -446,11 +452,12 @@ to 0.897436.
 
 ### What limitations does the M2 ablation have?
 
-It uses one validation fold, no confidence intervals, no external validation,
-and no calibration or threshold analysis. The three metadata variables were
-added together, so the result cannot be attributed to age, sex, or site
-individually without separate ablations. The evidence does not establish
-statistical significance or clinical utility.
+It uses one validation fold with no external validation or calibration
+analysis. Phase I added exploratory threshold analysis and paired bootstrap
+intervals using that same fold, not an independent test set. The three
+metadata variables were added together, so the result cannot be attributed to
+age, sex, or site individually without separate ablations. The evidence does
+not establish clinical significance or utility.
 
 ---
 
@@ -579,10 +586,11 @@ not establish clinical consequences.
 
 ### How were high-confidence cases selected?
 
-Selection was deterministic. The six FNs with the lowest M2 melanoma
-probabilities and six FPs with the highest probabilities were chosen. The six
-highest-probability TPs and six lowest-probability TNs supplied comparison
-cases. All 24 original JPEGs were inspected.
+Selection was deterministic and required unique JPEG content within each
+category. The six lowest-probability content-unique FNs and six
+highest-probability content-unique FPs were chosen. The six highest-probability
+TPs and six lowest-probability TNs supplied comparison cases. All 24 original
+JPEGs were inspected.
 
 ### Why inspect correct predictions as well as FP and FN cases?
 
@@ -592,10 +600,11 @@ both groups, which prevents a causal failure claim from this small sample.
 
 ### What did the visual review find?
 
-Four of six selected FNs showed hair and four showed low contrast. Three of six
+Five of six selected FNs showed hair and four showed low contrast. Three of six
 FPs showed hair, three markers, two illumination/colour issues, and two low
-contrast. All six TNs showed hair. Two FN filenames were byte-identical images
-from the same patient. These observations describe 24 extreme cases only.
+contrast. All six TNs showed hair. A duplicate FN was replaced with the next
+ranked unique-content FN; both dataset records remain in quantitative metrics.
+These observations describe 24 extreme cases only.
 
 ### What is M1/M2 disagreement analysis?
 
@@ -683,6 +692,10 @@ central heterogeneous or erythematous fields. Two FN maps still concentrated
 on the lesion despite low output scores; another split attribution between a
 diffuse lesion and an edge region. TN positive-logit maps often emphasized
 peripheral, hair-covered, or edge areas more than the central lesion.
+
+Because the target is always the melanoma logit, a TN map shows spatial
+regions contributing toward that positive logit despite the low total score.
+It does not directly explain why the final prediction was benign.
 
 ### Why does Grad-CAM not prove causality or clinical reasoning?
 

@@ -1,0 +1,17 @@
+{
+  "hash_algorithm": "SHA-256 of JPEG file bytes",
+  "total_images_hashed": 33126,
+  "unique_sha256_count": 32693,
+  "duplicate_hash_groups": 433,
+  "duplicate_image_records": 866,
+  "same_patient_same_split_groups": 433,
+  "different_patient_same_split_groups": 0,
+  "same_patient_cross_split_groups": 0,
+  "different_patient_cross_split_groups": 0,
+  "target_conflict_groups": 0,
+  "cross_split_groups": 0,
+  "different_patient_groups": 0,
+  "maximum_duplicate_group_size": 2,
+  "critical_leakage_detected": false,
+  "classification": "dataset_quality_and_within_patient_dependence"
+}

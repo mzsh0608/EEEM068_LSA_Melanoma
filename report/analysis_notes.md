@@ -31,15 +31,18 @@ contradictory.
 
 ## M2 high-confidence failures
 
-The deterministic manifest contains six cases from each M2 confusion category.
-False negatives were ranked by ascending M2 melanoma probability; false
-positives and true positives by descending probability; true negatives by
-ascending probability. All 24 original JPEGs were visually inspected.
+The deterministic manifest contains six content-unique cases from each M2
+confusion category. False negatives were ranked by ascending M2 melanoma
+probability; false positives and true positives by descending probability;
+true negatives by ascending probability. Byte-identical content was retained
+at most once per category. All 24 original JPEGs were visually inspected.
 
-Among six false negatives, visible hair occurred in four and low contrast in
+Among six false negatives, visible hair occurred in five and low contrast in
 four; one diffuse lesion reached the frame edge. `ISIC_0149568` and
-`ISIC_9022005` are byte-identical JPEGs from the same patient, so they are two
-validation rows but not two independent visual patterns. Among six false
+`ISIC_9022005` are byte-identical validation JPEGs from the same patient.
+`ISIC_9022005` was therefore replaced in the qualitative sample by the next
+ranked unique-content FN, `ISIC_4967586`; both dataset rows remain in all
+quantitative evaluation. Among six false
 positives, hair was visible in three, ruler/ink markers in three, uneven colour
 or illumination in two, and low contrast in two. One false positive was partly
 out of focus and did not show a clearly delineated lesion. The six true
@@ -112,6 +115,9 @@ show attribution exclusively on ink. The true-positive maps generally covered
 the visible lesion, with separate lobes over pigmented regions in one case.
 For the selected true negatives, positive-logit attribution was often weak on
 the central lesion and stronger on peripheral, hair-covered, or edge regions.
+Because every CAM targets the melanoma logit, these TN maps show regions that
+contribute toward the positive logit despite a low overall score; they do not
+directly explain why the model classified an image as benign.
 
 All 12 CAMs were finite, normalized, spatially nontrivial, and reproduced the
 saved M2 probabilities within tolerance. Hooks were closed after generation.
