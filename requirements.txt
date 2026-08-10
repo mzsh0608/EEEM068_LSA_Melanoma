@@ -1,16 +1,19 @@
-torch
-torchvision
-timm
-pandas
-numpy
-scikit-learn
-matplotlib
-seaborn
-Pillow
-opencv-python
-albumentations
-tqdm
-PyYAML
-jupyter
-ipykernel
-pytest
+# Direct runtime dependencies verified in the pre-Phase-J technical audit.
+# The recorded CUDA environment used PyTorch 2.11.0+cu128 and
+# torchvision 0.26.0+cu128; select the matching wheel index separately.
+torch==2.11.0
+torchvision==0.26.0
+numpy==2.5.1
+pandas==3.0.5
+scikit-learn==1.9.0
+matplotlib==3.11.1
+seaborn==0.13.2
+Pillow==12.3.0
+PyYAML==6.0.3
+joblib==1.5.3
+tqdm==4.70.0
+
+# Notebook and test tooling.
+jupyter==1.1.1
+ipykernel==7.3.0
+pytest==9.1.1

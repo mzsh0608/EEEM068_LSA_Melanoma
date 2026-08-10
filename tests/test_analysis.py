@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
+import src.analysis as analysis_module
 from src.analysis import (
     THRESHOLD_GRID,
     assign_age_band,
@@ -130,6 +131,35 @@ def test_failure_selection_uses_confidence_ordering():
         assert values == sorted(values, reverse=not ascending)
 
 
+def test_failure_selection_can_require_unique_image_content():
+    frame = pd.DataFrame({
+        "image_name": ["fn1", "fn2", "fn3", "tn1"],
+        "patient_id": ["p1", "p1", "p2", "p3"],
+        "target": [1, 1, 1, 0],
+        "m1_probability": [0.4, 0.4, 0.4, 0.1],
+        "m1_prediction": [0, 0, 0, 0],
+        "m2_probability": [0.1, 0.2, 0.3, 0.1],
+        "m2_prediction": [0, 0, 0, 0],
+    })
+    hashes = {
+        "fn1": "same",
+        "fn2": "same",
+        "fn3": "different",
+        "tn1": "tn",
+    }
+
+    selected = select_failure_cases(
+        frame,
+        per_category=2,
+        content_hash_by_image=hashes,
+    )
+
+    assert list(selected.loc[selected["category"] == "FN", "image_name"]) == [
+        "fn1",
+        "fn3",
+    ]
+
+
 def test_prediction_transition_labels_are_correct():
     transitions = calculate_prediction_transitions(_merged_frame())
 
@@ -196,3 +226,31 @@ def test_paired_patient_bootstrap_is_reproducible():
     summary = summarize_paired_bootstrap(first, frame, seed=42)
     assert summary["requested_iterations"] == 20
     assert summary["seed"] == 42
+
+
+def test_paired_patient_bootstrap_preserves_cluster_multiplicity(monkeypatch):
+    frame = pd.DataFrame({
+        "image_name": ["a1", "a2", "b1"],
+        "patient_id": ["A", "A", "B"],
+        "target": [0, 1, 0],
+        "m1_probability": [0.1, 0.9, 0.2],
+        "m2_probability": [0.2, 0.4, 0.9],
+    })
+
+    class FixedGenerator:
+        def integers(self, low, high, size):
+            assert (low, high, size) == (0, 2, 2)
+            return np.array([0, 0, 1])
+
+    monkeypatch.setattr(
+        analysis_module.np.random,
+        "default_rng",
+        lambda seed: FixedGenerator(),
+    )
+    sample = paired_patient_bootstrap(frame, iterations=1, seed=42).iloc[0]
+
+    assert sample["sampled_patient_clusters"] == 2
+    assert sample["sampled_rows"] == 5
+    assert sample["positive_count"] == 2
+    assert sample["m1_roc_auc"] == 1.0
+    assert sample["m2_roc_auc"] == pytest.approx(2 / 3)

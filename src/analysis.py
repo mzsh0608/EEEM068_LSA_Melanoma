@@ -1,6 +1,7 @@
 """Post-hoc behaviour analyses operating on saved Fold-0 predictions."""
 
 import argparse
+import hashlib
 import json
 import subprocess
 from datetime import datetime, timezone
@@ -190,8 +191,12 @@ def assign_confusion_category(targets, probabilities, threshold=0.5):
     )
 
 
-def select_failure_cases(merged_frame, per_category=6):
-    """Select deterministic high-confidence examples from every category."""
+def select_failure_cases(
+    merged_frame,
+    per_category=6,
+    content_hash_by_image=None,
+):
+    """Select deterministic high-confidence, optionally unique-content cases."""
     frame = merged_frame.copy()
     frame["m2_category"] = assign_confusion_category(
         frame["target"], frame["m2_probability"], threshold=0.5
@@ -211,7 +216,15 @@ def select_failure_cases(merged_frame, per_category=6):
             ["m2_probability", "image_name"],
             ascending=[ordering[category], True],
             kind="mergesort",
-        ).head(int(per_category)).copy()
+        ).copy()
+        if content_hash_by_image is not None:
+            subset["content_sha256"] = subset["image_name"].map(
+                content_hash_by_image
+            )
+            if subset["content_sha256"].isna().any():
+                raise ValueError("Content hashes are missing for candidate cases.")
+            subset = subset.drop_duplicates("content_sha256", keep="first")
+        subset = subset.head(int(per_category)).copy()
         subset.insert(0, "rank", np.arange(1, len(subset) + 1))
         subset.insert(1, "category", category)
         selected.append(subset)
@@ -710,7 +723,18 @@ def run_saved_prediction_analyses(
         disagreement_summary,
         failure_directory / "M1_M2_disagreement_summary.json",
     )
-    failures = select_failure_cases(merged, per_category=6)
+    image_directory = project_root / "data/train_images"
+    content_hash_by_image = {}
+    for image_name in merged["image_name"]:
+        with (image_directory / f"{image_name}.jpg").open("rb") as handle:
+            content_hash_by_image[image_name] = hashlib.file_digest(
+                handle, "sha256"
+            ).hexdigest()
+    failures = select_failure_cases(
+        merged,
+        per_category=6,
+        content_hash_by_image=content_hash_by_image,
+    )
     failures["image_path"] = failures["image_name"].map(
         lambda value: f"data/train_images/{value}.jpg"
     )

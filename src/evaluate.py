@@ -23,10 +23,11 @@ def calculate_binary_metrics(
     """
     Calculate binary-classification metrics.
 
-    PR-AUC is represented by scikit-learn's Average Precision
-    statistic rather than trapezoidal integration of the
-    precision-recall curve. If ``y_true`` contains only one class,
-    ROC-AUC and Average Precision are returned as ``None``.
+    The precision-recall summary is scikit-learn's Average Precision
+    (AP), not trapezoidal integration of the precision-recall curve.
+    The legacy result key is retained for artifact compatibility. If
+    ``y_true`` contains only one class, ROC-AUC and AP are returned as
+    ``None``.
 
     Parameters
     ----------
